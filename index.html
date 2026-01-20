@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بلغوا عني ولو آية</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/amiri@0.1.7/amiri.css">
+    <style>
+        :root { --main: #1a472a; --gold: #c5a059; }
+        body { font-family: 'Amiri', serif; background: #f4f1ea; margin: 0; padding: 15px; text-align: center; }
+        .card { background: white; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); border: 1px solid var(--gold); padding: 25px; margin: auto; max-width: 500px; }
+        .surah-header { color: var(--gold); font-size: 1.1em; margin-bottom: 15px; font-weight: bold; }
+        .ayah-text { font-size: 1.8em; color: #333; line-height: 1.8; margin-bottom: 20px; direction: rtl; }
+        .tafsir-section { background: #f9f9f9; padding: 15px; border-radius: 10px; font-size: 1em; color: #555; text-align: justify; border-right: 5px solid var(--main); }
+        .nav-btns { display: flex; gap: 10px; margin-top: 25px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 50px; background: var(--main); color: white; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .share { background: var(--gold); }
+        .footer { margin-top: 30px; font-size: 0.85em; color: #666; border-top: 1px solid #ddd; padding-top: 15px; }
+        .owner { color: var(--main); font-weight: bold; display: block; font-size: 1.1em; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="surah-header" id="info">تحميل البيانات...</div>
+    <div class="ayah-text" id="ayah">...</div>
+    <div class="tafsir-section" id="tafsir">جاري جلب التفسير الميسر...</div>
+    
+    <div class="nav-btns">
+        <button onclick="change(-1)">السابق</button>
+        <button class="share" onclick="share()">مشاركة</button>
+        <button onclick="change(1)">التالي</button>
+    </div>
+
+    <div class="footer">
+        هذا العمل من تنفيذ <span class="owner">أ / خالد الجوهري</span>
+        هذا العمل صدقة جارية لي ولوالديا ولزوجتي وأولادي اللهم تقبل
+    </div>
+</div>
+
+<script>
+    let qData = [];
+    let currentIdx = 0;
+    const surahNames = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأفراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
+
+    fetch('quran_uthmani.json')
+        .then(r => r.json())
+        .then(data => {
+            // معالجة بنية ملفك (verses داخل كل سورة)
+            data.forEach(s => {
+                s.verses.forEach(v => {
+                    qData.push({ text: v.text, sName: s.name, vNum: v.id, sNum: s.id });
+                });
+            });
+            init();
+        });
+
+    function init() {
+        const start = new Date("2024-01-01").getTime();
+        const diff = Math.floor((new Date() - start) / 86400000);
+        currentIdx = diff % qData.length;
+        render();
+    }
+
+    function render() {
+        const item = qData[currentIdx];
+        document.getElementById('ayah').innerText = item.text;
+        document.getElementById('info').innerText = `سورة ${item.sName} | آية ${item.vNum}`;
+        
+        // جلب التفسير من API خارجي ليظل حجم التطبيق صغيراً
+        fetch(`https://api.quran.com/api/v4/tafsirs/16/by_ayah/${item.sNum}:${item.vNum}`)
+            .then(res => res.json())
+            .then(d => document.getElementById('tafsir').innerText = d.tafsir.text);
+    }
+
+    function change(n) { currentIdx = (currentIdx + n + qData.length) % qData.length; render(); }
+    
+    function share() {
+        const t = `قال تعالى: { ${qData[currentIdx].text} }\n[سورة ${qData[currentIdx].sName}]\nتطبيق: بلغوا عني ولو آية`;
+        navigator.share ? navigator.share({text: t}) : alert(text);
+    }
+</script>
+</body>
+</html>
