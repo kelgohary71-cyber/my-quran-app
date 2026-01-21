@@ -3,70 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بلغوا عني ولو آية - المصحف الكامل</title>
+    <title>بلغوا عني ولو آية</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Cairo', sans-serif; 
             background: linear-gradient(135deg, #d1fae5 0%, #fef3c7 50%, #d1fae5 100%); 
-            min-height: 100vh; padding-bottom: 40px;
+            min-height: 100vh; padding-bottom: 50px;
         }
         
         .progress-header { 
-            background: #065f46; color: #fbbf24; padding: 10px 15px; 
+            background: #065f46; color: #fbbf24; padding: 15px; 
             text-align: center; position: sticky; top: 0; z-index: 1000;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border-bottom: 3px solid #fbbf24;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); border-bottom: 4px solid #fbbf24;
         }
         .header-main { display: flex; align-items: center; justify-content: center; gap: 15px; }
-        .app-logo { width: 55px; height: 55px; border-radius: 10px; border: 2px solid #fbbf24; object-fit: cover; background: white; }
-        .progress-info { font-size: 20px; font-weight: 900; }
+        .app-logo { width: 70px; height: 70px; border-radius: 12px; border: 2px solid #fbbf24; background: white; object-fit: contain; }
+        .progress-info { font-size: 24px; font-weight: 900; }
 
         .container { max-width: 800px; margin: 0 auto; padding: 15px; }
 
-        /* --- شريط البحث والفهرس الجديد --- */
-        .search-section {
-            background: #065f46; padding: 15px; border-radius: 15px; 
-            margin-bottom: 20px; border: 2px solid #fbbf24;
-            display: flex; flex-direction: column; gap: 10px;
+        /* --- صندوق البحث والفهرس --- */
+        .controls-box {
+            background: #047857; padding: 20px; border-radius: 15px; 
+            margin-bottom: 20px; border: 3px solid #fbbf24;
+            display: flex; flex-direction: column; gap: 12px;
         }
-        .search-title { color: #fbbf24; font-weight: 900; font-size: 16px; margin-bottom: 5px; text-align: right; }
-        .controls-row { display: flex; gap: 10px; flex-wrap: wrap; }
-        
-        select, .search-input { 
-            padding: 12px; border-radius: 8px; border: 2px solid #fbbf24; 
-            font-family: 'Cairo'; font-weight: bold; font-size: 16px; outline: none;
+        .search-input, .sura-select { 
+            width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #fbbf24; 
+            font-family: 'Cairo'; font-weight: 900; font-size: 18px; color: #065f46;
         }
-        select { background: white; color: #065f46; flex: 1; min-width: 140px; }
-        .search-input { background: white; color: #333; flex: 2; min-width: 200px; }
-        /* ---------------------------------- */
 
-        .section-header { font-size: 18px; font-weight: 900; padding: 8px 20px; border-radius: 15px 15px 0 0; display: inline-block; margin-top: 10px; color: white; }
+        .section-header { font-size: 20px; font-weight: 900; padding: 10px 25px; border-radius: 15px 15px 0 0; display: inline-block; color: white; }
         .bg-quran { background: #10b981; }
         .bg-tafseer { background: #3b82f6; }
 
         .scroll-box { 
             background: white; border-radius: 0 15px 15px 15px; 
-            padding: 20px; height: 380px; overflow-y: auto; margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 4px solid;
+            padding: 25px; height: 400px; overflow-y: auto; margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 5px solid;
         }
         .quran-box { border-color: #10b981; background: #fffdf4; }
         .tafseer-box { border-color: #3b82f6; }
 
         .quran-text { 
-            font-family: 'Amiri Quran', serif; font-size: 32px; line-height: 2.2; 
-            text-align: center; color: #111; font-weight: 900; word-spacing: 4px;
+            font-family: 'Amiri Quran', serif; font-size: 34px; line-height: 2.3; 
+            text-align: center; color: #000; font-weight: 900;
         }
-        .verse-info { color: #065f46; font-size: 18px; font-family: 'Cairo'; font-weight: bold; display: block; margin-top: 10px; }
-        .tafseer-text { font-size: 21px; font-weight: 800; color: #374151; line-height: 1.6; text-align: justify; }
+        .verse-info { color: #065f46; font-size: 20px; font-weight: bold; display: block; margin-top: 10px; font-family: 'Cairo'; }
+        .tafseer-text { font-size: 22px; font-weight: 800; color: #333; line-height: 1.7; text-align: justify; }
 
-        .nav-buttons { display: flex; gap: 15px; margin: 10px 0; }
-        .nav-btn { flex: 1; padding: 20px; border: none; border-radius: 15px; font-size: 22px; font-weight: 900; color: white; cursor: pointer; box-shadow: 0 4px 0 #00000033; }
+        /* --- تكبير خطوط الأزرار --- */
+        .nav-buttons { display: flex; gap: 15px; margin: 20px 0; }
+        .nav-btn { 
+            flex: 1; padding: 25px; border: none; border-radius: 15px; 
+            font-size: 28px; font-weight: 900; color: white; cursor: pointer; 
+            box-shadow: 0 6px 0 #00000033; transition: 0.2s;
+        }
         .btn-prev { background: #FF6B35; }
         .btn-next { background: #8B5CF6; }
 
-        .dedication { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 3px solid #fbbf24; border-radius: 15px; padding: 25px; text-align: center; color: white; margin-top: 30px; font-size: 20px; font-weight: 900; }
-        .footer { background: #047857; padding: 20px; text-align: center; color: white; border-radius: 12px; margin-top: 15px; font-size: 24px; font-weight: 900; }
+        /* --- تكبير خط الإهداء --- */
+        .dedication { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            border: 5px solid #fbbf24; border-radius: 20px; padding: 30px; 
+            text-align: center; color: white; margin-top: 35px; 
+            font-size: 26px; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .footer { background: #047857; padding: 20px; text-align: center; color: white; border-radius: 15px; margin-top: 20px; font-size: 28px; font-weight: 900; border: 2px solid #fbbf24; }
     </style>
 </head>
 <body>
@@ -79,19 +84,16 @@
     </div>
 
     <div class="container">
-        <div class="search-section">
-            <div class="search-title">ابحث عن سورة أو آية:</div>
-            <div class="controls-row">
-                <select id="suraSelect" onchange="jumpToSura()">
-                    <option value="">📖 فهرس السور</option>
-                </select>
-                <input type="text" id="searchInput" class="search-input" placeholder="🔍 اكتب الكلمة للبحث..." onkeyup="searchQuran()">
-            </div>
+        <div class="controls-box">
+            <select id="suraSelect" class="sura-select" onchange="jumpToSura()">
+                <option value="">📖 اختر السورة (الفهرس)</option>
+            </select>
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 اكتب هنا للبحث عن آية..." onkeyup="searchQuran()">
         </div>
 
-        <div class="section-header bg-quran">آيات الورد الكريم:</div>
+        <div class="section-header bg-quran">الآيات الكريمات:</div>
         <div class="scroll-box quran-box" id="q-box-scroll">
-            <div id="quran-content" class="quran-text">جاري تحميل المصحف الشريف...</div>
+            <div id="quran-content" class="quran-text">جاري تحميل المصحف...</div>
         </div>
 
         <div class="section-header bg-tafseer">التفسير الميسر:</div>
@@ -100,8 +102,8 @@
         </div>
 
         <div class="nav-buttons">
-            <button class="nav-btn btn-prev" onclick="changePage(-1)">الورد السابق</button>
-            <button class="nav-btn btn-next" onclick="changePage(1)">الورد التالي</button>
+            <button class="nav-btn btn-prev" onclick="changePage(-1)">السابق</button>
+            <button class="nav-btn btn-next" onclick="changePage(1)">التالي</button>
         </div>
 
         <div class="dedication">صدقة جارية عني وعن والديّ وزوجتي وأولادي</div>
@@ -116,73 +118,43 @@
 
         async function init() {
             try {
-                const qResponse = await fetch('quran.json');
-                const suras = await qResponse.json();
-                
-                // ملء الفهرس
+                const qRes = await fetch('quran.json');
+                const suras = await qRes.json();
                 const select = document.getElementById('suraSelect');
+                
                 suras.forEach(sura => {
                     let opt = document.createElement('option');
                     opt.value = sura.name; opt.textContent = sura.name;
                     select.appendChild(opt);
-                    
                     sura.verses.forEach(v => {
                         allVerses.push({ text: v.text, sNum: sura.id, sName: sura.name, vNum: v.id });
                     });
                 });
 
-                const tResponse = await fetch('tafseer.json');
-                tafseerData = await tResponse.json();
-                
+                const tRes = await fetch('tafseer.json');
+                tafseerData = await tRes.json();
                 render();
-            } catch (e) {
-                document.getElementById('quran-content').innerHTML = "حدث خطأ في تحميل البيانات";
-            }
+            } catch (e) { document.getElementById('quran-content').innerHTML = "خطأ في تحميل الملفات"; }
         }
 
-        function render(filteredData = null) {
-            const dataToDisplay = filteredData || allVerses;
+        function render(data = null) {
+            const list = data || allVerses;
             const start = currentPage * pageSize;
-            const currentSet = dataToDisplay.slice(start, start + pageSize);
-            
-            let qHTML = ""; let tHTML = "";
-            currentSet.forEach(v => {
-                qHTML += `<div style="margin-bottom:30px;">${v.text} <span class="verse-info">﴿${v.sName}: ${v.vNum}﴾</span></div>`;
-                const t = tafseerData.find(t => parseInt(t.number) === v.sNum && parseInt(t.aya) === v.vNum);
-                tHTML += `<p style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;"><strong>${v.sName} (${v.vNum}):</strong><br>${t ? t.text : "التفسير غير متوفر حالياً"}</p>`;
+            const set = list.slice(start, start + pageSize);
+            let qH = ""; let tH = "";
+            set.forEach(v => {
+                qH += `<div style="margin-bottom:35px;">${v.text} <span class="verse-info">﴿${v.sName}: ${v.vNum}﴾</span></div>`;
+                const t = tafseerData.find(x => parseInt(x.number) === v.sNum && parseInt(x.aya) === v.vNum);
+                tH += `<p style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;"><strong>${v.sName} (${v.vNum}):</strong><br>${t ? t.text : "..."}</p>`;
             });
-            
-            document.getElementById('quran-content').innerHTML = qHTML || "لا توجد نتائج للبحث";
-            document.getElementById('tafseer-content').innerHTML = tHTML;
+            document.getElementById('quran-content').innerHTML = qH;
+            document.getElementById('tafseer-content').innerHTML = tH;
             document.getElementById('q-box-scroll').scrollTop = 0;
         }
 
-        function changePage(dir) {
-            if ((currentPage + dir) * pageSize >= 0 && (currentPage + dir) * pageSize < allVerses.length) {
-                currentPage += dir; render();
-            }
-        }
-
-        function jumpToSura() {
-            const name = document.getElementById('suraSelect').value;
-            if(name) {
-                const idx = allVerses.findIndex(v => v.sName === name);
-                currentPage = Math.floor(idx / pageSize);
-                render();
-            }
-        }
-
-        function searchQuran() {
-            const term = document.getElementById('searchInput').value.trim();
-            if (term.length >= 3) {
-                const filtered = allVerses.filter(v => v.text.includes(term));
-                currentPage = 0;
-                render(filtered);
-            } else if (term === "") {
-                render();
-            }
-        }
-
+        function changePage(d) { if((currentPage+d)*pageSize >= 0 && (currentPage+d)*pageSize < allVerses.length){ currentPage+=d; render(); } }
+        function jumpToSura() { const n = document.getElementById('suraSelect').value; if(n){ currentPage = Math.floor(allVerses.findIndex(v=>v.sName===n)/pageSize); render(); } }
+        function searchQuran() { const t = document.getElementById('searchInput').value; if(t.length>2){ render(allVerses.filter(v=>v.text.includes(t))); } else if(!t){ render(); } }
         init();
     </script>
 </body>
