@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>بلغوا عني ولو آية - الورد اليومي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Cairo:wght@900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -36,13 +36,25 @@
 
         .scroll-box { 
             background: white; border-radius: 0 15px 15px 15px; 
-            padding: 20px; height: 350px; overflow-y: auto; margin-bottom: 20px;
+            padding: 20px; height: 380px; overflow-y: auto; margin-bottom: 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-width: 4px; border-style: solid;
         }
-        .quran-box { border-color: #10b981; background: #f0fff4; }
+        .quran-box { border-color: #10b981; background: #fffdf4; /* لون ورقي خفيف */ }
         .tafseer-box { border-color: #3b82f6; }
 
-        .quran-text { font-family: 'Amiri Quran', serif; font-size: 28px; line-height: 2; text-align: center; color: #1f2937; }
+        /* تعديل الخط العثماني ليكون بولد وكبير */
+        .quran-text { 
+            font-family: 'Amiri Quran', serif; 
+            font-size: 34px; /* حجم كبير للآيات */
+            line-height: 2.2; 
+            text-align: center; 
+            color: #111; 
+            font-weight: 900; /* جعل الخط عريض جداً */
+            word-spacing: 4px;
+        }
+        
+        .verse-info { color: #065f46; font-size: 18px; font-family: 'Cairo', sans-serif; font-weight: bold; }
+
         .tafseer-text { font-size: 22px; font-weight: 800; color: #374151; line-height: 1.6; text-align: justify; }
 
         .share-btn {
@@ -72,7 +84,7 @@
     </div>
 
     <div class="container">
-        <div class="section-header bg-quran">نص الـ 20 آية:</div>
+        <div class="section-header bg-quran">نص الـ 20 آية (بالرسم العثماني):</div>
         <div class="scroll-box quran-box" id="q-box-scroll">
             <div id="quran-content" class="quran-text">جاري تحميل الآيات...</div>
         </div>
@@ -101,11 +113,9 @@
 
         async function init() {
             try {
-                // تحميل القرآن
                 const quranResponse = await fetch('quran.json');
                 const suras = await quranResponse.json();
                 
-                // تحويل السور لقائمة آيات
                 suras.forEach(sura => {
                     sura.verses.forEach(verse => {
                         allVerses.push({
@@ -117,19 +127,13 @@
                     });
                 });
 
-                console.log('تم تحميل ' + allVerses.length + ' آية من القرآن');
-
-                // تحميل التفسير
                 const tafseerResponse = await fetch('tafseer.json');
                 tafseerData = await tafseerResponse.json();
                 
-                console.log('تم تحميل ' + tafseerData.length + ' تفسير');
-
                 currentPage = parseInt(localStorage.getItem('currentWirdPage') || '0');
                 render();
             } catch (e) {
-                console.error('خطأ:', e);
-                document.getElementById('quran-content').innerHTML = "<span style='color:red'>خطأ في قراءة الملفات. تأكد من رفع quran.json و tafseer.json</span>";
+                document.getElementById('quran-content').innerHTML = "<span style='color:red'>تأكد من وجود quran.json و tafseer.json</span>";
             }
         }
 
@@ -144,26 +148,26 @@
             const currentSet = allVerses.slice(start, start + pageSize);
 
             currentSet.forEach(verse => {
-                // نص الآية
-                qHTML += `<span>${verse.text}</span> <span style="color:#065f46; font-size:18px;">(${verse.suraName} - ${verse.verseNumber})</span> <br><br>`;
+                // نص الآية عريض جداً
+                qHTML += `<div style="margin-bottom:20px;">
+                            <span>${verse.text}</span> 
+                            <span class="verse-info">﴿${verse.suraName}: ${verse.verseNumber}﴾</span>
+                          </div>`;
                 
-                // البحث عن التفسير المطابق
                 const tafseer = tafseerData.find(t => 
                     parseInt(t.number) === verse.suraNumber && 
                     parseInt(t.aya) === verse.verseNumber
                 );
                 
-                if (tafseer) {
-                    tHTML += `<p style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;"><strong>${verse.suraName} - آية ${verse.verseNumber}:</strong><br>${tafseer.text}</p>`;
-                } else {
-                    tHTML += `<p style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;"><strong>${verse.suraName} - آية ${verse.verseNumber}:</strong><br>التفسير غير متوفر</p>`;
-                }
+                tHTML += `<p style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                            <strong>${verse.suraName} (${verse.verseNumber}):</strong><br>
+                            ${tafseer ? tafseer.text : "التفسير غير متوفر"}
+                          </p>`;
             });
 
             qBox.innerHTML = qHTML;
             tBox.innerHTML = tHTML;
 
-            // تحديث العداد والنسبة
             const totalPages = Math.ceil(allVerses.length / pageSize);
             const progress = totalPages > 1 ? ((currentPage / (totalPages - 1)) * 100).toFixed(1) : 100;
             
@@ -171,7 +175,6 @@
             document.getElementById('progress-fill').style.width = progress + "%";
             document.getElementById('percent-text').innerText = `إنجاز الختمة: ${progress}%`;
 
-            // حفظ الحالة وتصفير السكرول
             localStorage.setItem('currentWirdPage', currentPage);
             document.getElementById('q-box-scroll').scrollTop = 0;
             document.getElementById('t-box-scroll').scrollTop = 0;
@@ -191,11 +194,7 @@
             if (navigator.share) {
                 navigator.share({ title: 'ورد القرآن', text: textToShare });
             } else {
-                navigator.clipboard.writeText(textToShare).then(() => {
-                    alert("✅ تم النسخ!");
-                }).catch(() => {
-                    alert("انسخ الرابط:\n" + window.location.href);
-                });
+                navigator.clipboard.writeText(textToShare).then(() => alert("✅ تم نسخ رابط الورد!"));
             }
         }
 
