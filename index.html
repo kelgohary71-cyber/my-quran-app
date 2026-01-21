@@ -115,10 +115,6 @@
             background: #d1fae5; 
             border: 3px solid #10b981; 
         }
-        .tafsir-card { 
-            background: #d1fae5; 
-            border: 3px solid #f59e0b; 
-        }
         .card-header { 
             display: flex; 
             align-items: center; 
@@ -139,7 +135,6 @@
             font-size: 14px; 
         }
         .verse-icon { background: linear-gradient(135deg, #10b981, #059669); }
-        .tafsir-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .card-title { font-size: 14px; font-weight: bold; }
         .content-box { 
             background: white; 
@@ -149,15 +144,10 @@
         }
         .verse-text { 
             font-family: 'Amiri Quran', 'Amiri', serif; 
-            font-size: 20px; 
-            line-height: 1.8; 
+            font-size: 22px; 
+            line-height: 2; 
             text-align: center; 
             color: #1f2937; 
-        }
-        .tafsir-text { 
-            font-size: 14px; 
-            line-height: 1.6; 
-            color: #374151; 
         }
         
         .nav-buttons { 
@@ -352,9 +342,10 @@
             color: #047857; 
             margin-bottom: 3px; 
             font-size: 13px; 
+            font-family: 'Amiri Quran', 'Amiri', serif;
         }
-        .result-tafsir { 
-            font-size: 12px; 
+        .result-info { 
+            font-size: 11px; 
             color: #6b7280; 
         }
         .loading { 
@@ -394,7 +385,7 @@
                 <h2 class="modal-title">البحث في القرآن الكريم</h2>
                 <button class="close-btn" onclick="closeSearch()">✕</button>
             </div>
-            <input type="text" class="search-input" id="searchInput" placeholder="ابحث في الآيات والتفسير..." oninput="handleSearch()">
+            <input type="text" class="search-input" id="searchInput" placeholder="ابحث في الآيات..." oninput="handleSearch()">
             <div id="searchResults" class="search-results"></div>
         </div>
     </div>
@@ -433,16 +424,6 @@
                 </div>
             </div>
 
-            <div class="card tafsir-card">
-                <div class="card-header">
-                    <div class="card-icon tafsir-icon">ت</div>
-                    <h2 class="card-title" style="color: #d97706;">التفسير</h2>
-                </div>
-                <div class="content-box">
-                    <p class="tafsir-text" id="tafsirText">تفسير الآية...</p>
-                </div>
-            </div>
-
             <div class="nav-buttons">
                 <button class="nav-btn btn-prev" id="prevBtn" onclick="goPrevious()">
                     <span>◄</span>
@@ -471,30 +452,43 @@
     </div>
 
     <script>
-        let quranData = [];
+        let allVerses = [];
         let currentIndex = 0;
         let suraList = [];
 
         async function loadData() {
             try {
                 const response = await fetch('quran.json');
-                const data = await response.json();
+                const suras = await response.json();
                 
-                quranData = data.data.map((verse, idx) => ({
-                    text: verse.text,
-                    translation: verse.translation || '',
-                    suraNumber: verse.sura,
-                    suraName: verse.sura_name,
-                    ayahNumber: verse.aya,
-                    index: idx
+                // تحويل السور والآيات لقائمة واحدة
+                suras.forEach(sura => {
+                    sura.verses.forEach(verse => {
+                        allVerses.push({
+                            text: verse.text,
+                            suraId: sura.id,
+                            suraName: sura.name,
+                            verseId: verse.id,
+                            suraType: sura.type
+                        });
+                    });
+                });
+                
+                console.log('تم تحميل ' + allVerses.length + ' آية');
+                
+                // استخراج قائمة السور
+                suraList = suras.map(sura => ({
+                    id: sura.id,
+                    name: sura.name,
+                    type: sura.type,
+                    totalVerses: sura.total_verses,
+                    firstVerseIndex: allVerses.findIndex(v => v.suraId === sura.id)
                 }));
                 
-                console.log('تم تحميل ' + quranData.length + ' آية');
-                
-                extractSuraList();
+                displaySuraList();
                 
                 const savedIndex = parseInt(localStorage.getItem('lastReadIndex') || '0');
-                currentIndex = savedIndex < quranData.length ? savedIndex : 0;
+                currentIndex = savedIndex < allVerses.length ? savedIndex : 0;
                 
                 document.getElementById('loadingDiv').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
@@ -506,62 +500,40 @@
             }
         }
 
-        function extractSuraList() {
-            const suras = [];
-            const seenSuras = new Set();
-            
-            quranData.forEach(verse => {
-                if (!seenSuras.has(verse.suraNumber)) {
-                    seenSuras.add(verse.suraNumber);
-                    const suraVerses = quranData.filter(v => v.suraNumber === verse.suraNumber);
-                    suras.push({
-                        number: verse.suraNumber,
-                        name: verse.suraName,
-                        ayahCount: suraVerses.length,
-                        firstIndex: verse.index
-                    });
-                }
-            });
-            
-            suraList = suras;
-            displaySuraList();
-        }
-
         function displaySuraList() {
             const container = document.getElementById('suraList');
             container.innerHTML = suraList.map(sura => `
-                <div class="sura-item" onclick="goToSura(${sura.firstIndex})">
+                <div class="sura-item" onclick="goToSura(${sura.firstVerseIndex})">
                     <div class="sura-name">${sura.name}</div>
                     <div class="sura-info">
-                        <span>📖 ${sura.number}</span>
-                        <span>📝 ${sura.ayahCount}</span>
+                        <span>📖 ${sura.id}</span>
+                        <span>📝 ${sura.totalVerses}</span>
                     </div>
                 </div>
             `).join('');
         }
 
         function updateDisplay() {
-            if (currentIndex < 0 || currentIndex >= quranData.length) return;
+            if (currentIndex < 0 || currentIndex >= allVerses.length) return;
             
-            const verse = quranData[currentIndex];
+            const verse = allVerses[currentIndex];
             
             document.getElementById('verseText').textContent = verse.text;
-            document.getElementById('tafsirText').textContent = verse.translation || 'لا يوجد تفسير';
-            document.getElementById('suraName').textContent = verse.suraName + ' - الآية ' + verse.ayahNumber;
+            document.getElementById('suraName').textContent = verse.suraName + ' - الآية ' + verse.verseId;
             
-            const percent = Math.round(((currentIndex + 1) / quranData.length) * 100);
-            document.getElementById('progressText').textContent = 'الآية ' + (currentIndex + 1) + ' من ' + quranData.length;
+            const percent = Math.round(((currentIndex + 1) / allVerses.length) * 100);
+            document.getElementById('progressText').textContent = 'الآية ' + (currentIndex + 1) + ' من ' + allVerses.length;
             document.getElementById('progressPercent').textContent = percent + '%';
             document.getElementById('progressFill').style.width = percent + '%';
             
             document.getElementById('prevBtn').disabled = currentIndex === 0;
-            document.getElementById('nextBtn').disabled = currentIndex === quranData.length - 1;
+            document.getElementById('nextBtn').disabled = currentIndex === allVerses.length - 1;
             
             localStorage.setItem('lastReadIndex', currentIndex);
         }
 
         function goNext() {
-            if (currentIndex < quranData.length - 1) {
+            if (currentIndex < allVerses.length - 1) {
                 currentIndex++;
                 updateDisplay();
             }
@@ -575,8 +547,8 @@
         }
 
         function shareVerse() {
-            const verse = quranData[currentIndex];
-            const text = verse.text + '\n\n' + verse.translation + '\n\n📱 من تطبيق: بلغوا عني ولو آية';
+            const verse = allVerses[currentIndex];
+            const text = verse.text + '\n\n' + verse.suraName + ' - الآية ' + verse.verseId + '\n\n📱 من تطبيق: بلغوا عني ولو آية';
             if (navigator.share) {
                 navigator.share({ title: 'بلغوا عني ولو آية', text: text });
             } else {
@@ -599,7 +571,7 @@
             
             if (!query) { resultsContainer.innerHTML = ''; return; }
             
-            const results = quranData.filter(v => v.text.includes(query) || v.translation.includes(query));
+            const results = allVerses.filter(v => v.text.includes(query));
             
             if (results.length === 0) {
                 resultsContainer.innerHTML = '<p style="text-align:center;color:#6b7280;padding:20px;font-size:14px;">لا توجد نتائج للبحث</p>';
@@ -607,12 +579,15 @@
             }
             
             resultsContainer.innerHTML = '<p style="margin-bottom:10px;color:#6b7280;font-size:12px;font-weight:600;">عدد النتائج: ' + results.length + '</p>' + 
-                results.slice(0, 50).map(result => `
-                    <div class="search-result-item" onclick="goToVerse(${result.index})">
-                        <div class="result-verse">${result.text.substring(0, 60)}...</div>
-                        <div class="result-tafsir">${result.translation.substring(0, 70)}...</div>
-                    </div>
-                `).join('');
+                results.slice(0, 50).map(result => {
+                    const resultIndex = allVerses.indexOf(result);
+                    return `
+                        <div class="search-result-item" onclick="goToVerse(${resultIndex})">
+                            <div class="result-verse">${result.text.substring(0, 70)}...</div>
+                            <div class="result-info">${result.suraName} - الآية ${result.verseId}</div>
+                        </div>
+                    `;
+                }).join('');
         }
 
         function goToVerse(index) { currentIndex = index; updateDisplay(); closeSearch(); }
