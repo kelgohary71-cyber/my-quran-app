@@ -24,7 +24,6 @@
 
         .container { max-width: 800px; margin: 0 auto; padding: 15px; }
 
-        /* صندوق البحث والفهرس */
         .controls-box {
             background: #047857; padding: 20px; border-radius: 15px; 
             margin-bottom: 20px; border: 3px solid #fbbf24;
@@ -54,7 +53,7 @@
         .verse-info { color: #065f46; font-size: 20px; font-weight: bold; display: block; margin-top: 10px; font-family: 'Cairo'; }
         .tafseer-text { font-size: 22px; font-weight: 800; color: #333; line-height: 1.7; text-align: justify; }
 
-        /* زرار المشاركة الجديد */
+        /* زرار المشاركة - مشاركة المحتوى الحالي */
         .share-btn {
             background: #2563eb; color: white; border: none; padding: 20px; 
             border-radius: 15px; font-weight: 900; cursor: pointer; width: 100%; 
@@ -62,7 +61,6 @@
             font-family: 'Cairo';
         }
 
-        /* تكبير خطوط الأزرار */
         .nav-buttons { display: flex; gap: 15px; margin: 10px 0; }
         .nav-btn { 
             flex: 1; padding: 25px; border: none; border-radius: 15px; 
@@ -72,7 +70,6 @@
         .btn-prev { background: #FF6B35; }
         .btn-next { background: #8B5CF6; }
 
-        /* تكبير خط الإهداء */
         .dedication { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
             border: 5px solid #fbbf24; border-radius: 20px; padding: 30px; 
@@ -94,9 +91,9 @@
     <div class="container">
         <div class="controls-box">
             <select id="suraSelect" class="sura-select" onchange="jumpToSura()">
-                <option value="">📖 اختر السورة (الفهرس)</option>
+                <option value="">📖 الفهرس (اختر السورة)</option>
             </select>
-            <input type="text" id="searchInput" class="search-input" placeholder="🔍 اكتب هنا للبحث عن آية..." onkeyup="searchQuran()">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 اكتب هنا للبحث عن كلمة..." onkeyup="searchQuran()">
         </div>
 
         <div class="section-header bg-quran">الآيات الكريمات:</div>
@@ -109,7 +106,7 @@
             <div id="tafseer-content" class="tafseer-text">جاري تحميل التفسير...</div>
         </div>
 
-        <button class="share-btn" onclick="shareApp()">مشاركة التطبيق (صدقة جارية) 🔗</button>
+        <button class="share-btn" onclick="shareCurrentWird()">مشاركة هذا الورد (آيات وتفسير) 🔗</button>
 
         <div class="nav-buttons">
             <button class="nav-btn btn-prev" onclick="changePage(-1)">السابق</button>
@@ -125,6 +122,7 @@
         let tafseerData = [];
         let currentPage = 0;
         const pageSize = 10;
+        let currentDisplayedVerses = []; // لتخزين ما هو معروض حالياً للمشاركة
 
         async function init() {
             try {
@@ -150,12 +148,14 @@
         function render(data = null) {
             const list = data || allVerses;
             const start = currentPage * pageSize;
-            const set = list.slice(start, start + pageSize);
+            currentDisplayedVerses = list.slice(start, start + pageSize);
+            
             let qH = ""; let tH = "";
-            set.forEach(v => {
+            currentDisplayedVerses.forEach(v => {
                 qH += `<div style="margin-bottom:35px;">${v.text} <span class="verse-info">﴿${v.sName}: ${v.vNum}﴾</span></div>`;
                 const t = tafseerData.find(x => parseInt(x.number) === v.sNum && parseInt(x.aya) === v.vNum);
-                tH += `<p style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;"><strong>${v.sName} (${v.vNum}):</strong><br>${t ? t.text : "التفسير متاح في النسخة الكاملة"}</p>`;
+                v.tafseer = t ? t.text : "التفسير متاح في النسخة الكاملة";
+                tH += `<p style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;"><strong>${v.sName} (${v.vNum}):</strong><br>${v.tafseer}</p>`;
             });
             document.getElementById('quran-content').innerHTML = qH;
             document.getElementById('tafseer-content').innerHTML = tH;
@@ -166,12 +166,18 @@
         function jumpToSura() { const n = document.getElementById('suraSelect').value; if(n){ currentPage = Math.floor(allVerses.findIndex(v=>v.sName===n)/pageSize); render(); } }
         function searchQuran() { const t = document.getElementById('searchInput').value; if(t.length>2){ render(allVerses.filter(v=>v.text.includes(t))); } else if(!t){ render(); } }
         
-        function shareApp() {
-            const text = "بلغوا عني ولو آية - تطبيق القرآن الكريم والتفسير الميسر\nصدقة جارية للأستاذ خالد الجوهري\n" + window.location.href;
+        // وظيفة مشاركة الورد المعروض حالياً
+        function shareCurrentWird() {
+            let message = "📖 ورد اليوم من تطبيق (بلغوا عني ولو آية):\n\n";
+            currentDisplayedVerses.forEach(v => {
+                message += `🔹 ${v.text} (${v.sName}: ${v.vNum})\n🔸 التفسير: ${v.tafseer}\n\n`;
+            });
+            message += "✨ صدقة جارية للأستاذ خالد الجوهري\n🔗 رابط التطبيق:\n" + window.location.href;
+
             if (navigator.share) {
-                navigator.share({ title: 'تطبيق القرآن', text: text });
+                navigator.share({ title: 'مشاركة الورد القرآني', text: message });
             } else {
-                navigator.clipboard.writeText(text).then(() => alert("✅ تم نسخ رابط التطبيق لنشره!"));
+                navigator.clipboard.writeText(message).then(() => alert("✅ تم نسخ نص الورد وتفسيره بنجاح!"));
             }
         }
         
