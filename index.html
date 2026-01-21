@@ -13,7 +13,7 @@
             min-height: 100vh; padding-bottom: 50px;
         }
         
-        /* الهيدر العلوي المحسن */
+        /* الهيدر العلوي */
         .progress-header { 
             background: #065f46; color: #fbbf24; padding: 10px 15px; 
             text-align: center; position: sticky; top: 0; z-index: 1000;
@@ -28,7 +28,7 @@
 
         .container { max-width: 800px; margin: 0 auto; padding: 15px; }
 
-        /* تنسيق الورد والآيات */
+        /* الكروت */
         .verse-block { margin-bottom: 30px; }
         .info-tag { text-align: center; font-weight: 900; color: #047857; margin-bottom: 5px; font-size: 16px; background: white; border-radius: 8px; padding: 3px; border: 1px solid #10b981; }
         
@@ -39,13 +39,11 @@
         .card-header { color: #3b82f6; font-size: 18px; font-weight: 900; margin-bottom: 10px; border-bottom: 2px solid #3b82f6; display: inline-block; }
         .card-text { font-size: 22px; font-weight: 800; color: #374151; line-height: 1.6; text-align: justify; white-space: pre-wrap; }
 
-        /* زر المشاركة */
+        /* الأزرار */
         .share-btn {
             margin-top: 15px; background: #3b82f6; color: white; border: none; 
             padding: 10px 20px; border-radius: 10px; font-weight: 900; cursor: pointer; width: 100%; font-size: 18px; font-family: 'Cairo';
         }
-
-        /* أزرار التنقل */
         .nav-buttons { display: flex; gap: 15px; margin: 25px 0; }
         .nav-btn { flex: 1; padding: 20px; border: none; border-radius: 15px; font-size: 22px; font-weight: 900; color: white; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
         .btn-prev { background: #FF6B35; }
@@ -59,7 +57,7 @@
 
     <div class="progress-header">
         <div class="header-main">
-            <img src="logo.png" alt="لوجو" class="app-logo" onerror="this.style.display='none'">
+            <img src="logo.png" alt="لوجو" class="app-logo" onerror="this.src='https://via.placeholder.com/60?text=%D9%84%D9%88%D8%AC%D9%88'">
             <div class="progress-info" id="day-counter">جاري التحميل...</div>
         </div>
         <div class="progress-bar-bg"><div id="progress-fill"></div></div>
@@ -86,33 +84,42 @@
 
         async function init() {
             try {
-                // محاولة تحميل ملف quran.json
                 const response = await fetch('quran.json');
-                if (!response.ok) throw new Error();
                 const data = await response.json();
                 
-                // التعديل الجذري هنا ليتوافق مع ملفك (حيث كل النص في خانة text)
-                allItems = data.map(item => ({
-                    // نأخذ النص من خانة text أو aya_text أو أي مسمى متاح
-                    content: item.text || item.aya_text || "نص غير متوفر",
-                    info: `سورة رقم ${item.number || ''} - آية ${item.aya || ''}`
-                }));
+                // الكود الآن مرن جداً: يقرأ ملفك سواء كان مصفوفة مباشرة أو مقسماً بسور
+                if (Array.isArray(data)) {
+                    if (data[0].verses) {
+                        // لو الملف مقسم بسور
+                        data.forEach(sura => {
+                            sura.verses.forEach(v => {
+                                allItems.push({
+                                    content: v.text || v.aya_text || "",
+                                    info: `${sura.name || 'سورة'} - آية ${v.id || v.aya_no || ''}`
+                                });
+                            });
+                        });
+                    } else {
+                        // لو الملف مصفوفة آيات مباشرة (مثل ملفك الحالي)
+                        allItems = data.map(item => ({
+                            content: item.text || item.content || "",
+                            info: `سورة رقم ${item.number || ''} - آية ${item.aya || ''}`
+                        }));
+                    }
+                }
 
                 currentPage = parseInt(localStorage.getItem('currentWirdPage') || '0');
                 render();
                 document.getElementById('loading').style.display = 'none';
             } catch (e) { 
-                document.getElementById('loading').innerHTML = "<div style='color:red; padding:20px;'>خطأ: لم يتم العثور على ملف quran.json أو أن تنسيقه خاطئ. تأكد من رفع الملف في جيت هاب بنفس المجلد.</div>"; 
+                document.getElementById('loading').innerHTML = "تأكد من وجود ملف quran.json في جيت هاب"; 
             }
         }
 
         function render() {
             const container = document.getElementById('verses-container');
             container.innerHTML = '';
-            
-            const start = currentPage * pageSize;
-            const end = start + pageSize;
-            const currentSet = allItems.slice(start, end);
+            const currentSet = allItems.slice(currentPage * pageSize, (currentPage + 1) * pageSize);
 
             currentSet.forEach(item => {
                 const html = `
@@ -121,38 +128,33 @@
                         <div class="card-container">
                             <div class="card-header">الآية والتفسير:</div>
                             <p class="card-text">${item.content}</p>
-                            <button class="share-btn" onclick="shareItem('${item.content.replace(/\n/g, " ").substring(0,150)}...', '${item.info}')">مشاركة الورد 🔗</button>
+                            <button class="share-btn" onclick="shareItem('${item.content.replace(/\n/g, " ").substring(0,100)}', '${item.info}')">مشاركة الآية والتفسير 🔗</button>
                         </div>
                     </div>
                 `;
                 container.innerHTML += html;
             });
 
-            // تحديث شريط الإنجاز والعداد
             const totalPages = Math.ceil(allItems.length / pageSize);
-            const progress = totalPages > 0 ? ((currentPage / (totalPages - 1)) * 100).toFixed(1) : 0;
-            
+            const progress = totalPages > 1 ? ((currentPage / (totalPages - 1)) * 100).toFixed(1) : 0;
             document.getElementById('day-counter').innerText = `الورد ${currentPage + 1} من ${totalPages}`;
             document.getElementById('progress-fill').style.width = progress + "%";
             document.getElementById('percent-text').innerText = `إنجاز الختمة: ${progress}%`;
-            
             window.scrollTo(0,0);
         }
 
         function shareItem(txt, inf) {
-            const shareLink = window.location.href;
-            const shareText = `${txt}\n[${inf}]\nتطبيق بلغوا عني ولو آية\n${shareLink}`;
+            const textToShare = `${txt}...\n[${inf}]\nتطبيق بلغوا عني ولو آية`;
             if (navigator.share) {
-                navigator.share({ title: 'ورد اليوم', text: shareText });
+                navigator.share({ title: 'شارك الورد', text: textToShare, url: window.location.href });
             } else {
-                alert("انسخ النص لمشاركته:\n" + shareText);
+                alert("انسخ النص لمشاركته:\n" + textToShare);
             }
         }
 
         function changePage(dir) {
             const newPage = currentPage + dir;
-            const totalPages = Math.ceil(allItems.length / pageSize);
-            if (newPage >= 0 && newPage < totalPages) {
+            if (newPage >= 0 && newPage < Math.ceil(allItems.length / pageSize)) {
                 currentPage = newPage;
                 localStorage.setItem('currentWirdPage', currentPage);
                 render();
