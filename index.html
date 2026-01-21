@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>بلغوا عني ولو آية</title>
-    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Cairo:wght@900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -13,151 +13,133 @@
             min-height: 100vh; 
         }
         
-        .header { 
-            background: linear-gradient(to right, #059669, #047857); 
-            color: white; 
-            padding: 15px; 
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15); 
-            text-align: center;
-            position: sticky; top: 0; z-index: 100;
-        }
-        .header-title h1 { font-size: 24px; font-weight: 900; } /* تكبير عنوان التطبيق */
+        /* الهيدر */
+        .header { background: linear-gradient(to right, #059669, #047857); color: white; padding: 20px; text-align: center; }
+        .header h1 { font-size: 28px; font-weight: 900; }
 
-        .toolbar { 
-            background: white; border-bottom: 3px solid #10b981; 
-            padding: 10px; position: sticky; top: 78px; z-index: 99;
-        }
-        .toolbar-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 800px; margin: 0 auto; }
+        .toolbar { background: white; border-bottom: 4px solid #10b981; padding: 12px; }
+        .toolbar-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; max-width: 800px; margin: 0 auto; }
         
-        /* أزرار البحث والفهرس - خط ضخم يملأ الزر */
+        /* أزرار البحث والفهرس - ضخمة جداً */
         .btn { 
-            display: flex; align-items: center; justify-content: center; gap: 10px; 
-            padding: 15px 5px; border: none; border-radius: 10px; 
-            font-size: 20px; /* خط ضخم */
-            font-weight: 900; /* أقصى درجة عريضة للخط */
-            cursor: pointer; color: white;
+            display: flex; align-items: center; justify-content: center; 
+            padding: 20px 5px; border: none; border-radius: 12px; 
+            font-size: 24px; /* خط ضخم جداً */
+            font-weight: 900; color: white; cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            width: 100%;
         }
         .btn-search { background: #3B82F6; }
         .btn-fihris { background: #F59E0B; }
         
-        .container { max-width: 800px; margin: 0 auto; padding: 12px; }
+        .container { max-width: 800px; margin: 0 auto; padding: 15px; }
 
-        /* الكارت والآية */
-        .verse-card { background: #d1fae5; border: 3px solid #10b981; border-radius: 12px; padding: 15px; margin-bottom: 15px; }
+        /* كارت الآية */
+        .verse-card { background: #d1fae5; border: 4px solid #10b981; border-radius: 15px; padding: 20px; margin-bottom: 20px; }
         .verse-text { 
             font-family: 'Amiri Quran', serif; 
-            font-size: 26px; font-weight: bold; line-height: 1.8; 
+            font-size: 32px; font-weight: 900; line-height: 1.6; 
             text-align: center; color: #1f2937; 
         }
 
-        /* أزرار التنقل - السابق والمشاركة والتالي */
-        .nav-buttons { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+        /* أزرار التنقل والمشاركة - تملأ العرض بالكامل */
+        .nav-buttons { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
         .nav-btn { 
             display: flex; align-items: center; justify-content: center; 
-            padding: 18px 5px; border: none; border-radius: 10px; 
-            font-size: 22px; /* تكبير الخط جداً */
+            padding: 25px 5px; border: none; border-radius: 12px; 
+            font-size: 26px; /* ضخم جداً */
             font-weight: 900; color: white; cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
         }
         .btn-prev, .btn-next { flex: 1; }
-        .btn-share { background: #EC4899; flex: 2.5; font-size: 24px; } /* تمييز المشاركة */
+        .btn-share { background: #EC4899; flex: 2.2; font-size: 28px; } /* المشاركة هي الأكبر */
         .btn-prev { background: #FF6B35; }
         .btn-next { background: #8B5CF6; }
 
-        /* منطقة الإهداء - ملء المربع بالخط العريض */
+        /* منطقة الإهداء - ملء المربع بالكامل */
         .dedication { 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            border: 3px solid #fbbf24; border-radius: 12px; 
-            padding: 20px 10px; text-align: center; margin-bottom: 15px;
+            border: 4px solid #fbbf24; border-radius: 15px; 
+            padding: 25px 15px; text-align: center; margin-bottom: 20px;
         }
         .dedication-text { 
-            font-size: 20px; /* تكبير الخط */
+            font-size: 24px; /* كبرت جداً لتملأ المربع */
             font-weight: 900; color: white; 
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5); 
-            line-height: 1.4; margin-bottom: 8px;
+            line-height: 1.3; margin-bottom: 10px;
+            display: block; width: 100%;
         }
-        .dedication-sub { font-size: 18px; font-weight: 800; color: #fef3c7; }
+        .dedication-sub { font-size: 22px; font-weight: 900; color: #fef3c7; display: block; }
 
-        /* الفوتر - اسم أ/ خالد الجوهري */
+        /* الفوتر - اسم أ/ خالد الجوهري - ضخم جداً */
         .footer { 
             background: linear-gradient(135deg, #10b981 0%, #047857 100%); 
-            border: 2px solid #10b981; border-radius: 12px; padding: 15px; text-align: center;
+            border: 3px solid #10b981; border-radius: 15px; padding: 25px; text-align: center;
         }
         .footer-name { 
-            font-size: 22px; /* تكبير اسمك ليكون بارزاً */
+            font-size: 28px; /* اسمك ضخم جداً وواضح */
             font-weight: 900; color: white; 
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3); margin-bottom: 5px;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.4); margin-bottom: 8px;
+            display: block; width: 100%;
         }
-        .footer-copyright { font-size: 14px; font-weight: bold; color: #d1fae5; }
+        .footer-copyright { font-size: 16px; font-weight: 900; color: #d1fae5; display: block; }
 
-        /* تعديل شكل المودال (الفهرس والبحث) لخطوط أوضح */
-        .sura-name { font-size: 18px; font-weight: 900; color: #1f2937; }
-        .search-input { font-size: 18px; font-weight: bold; padding: 15px; }
+        /* المودالات (الفهرس والبحث) */
+        .sura-item { background:#fef3c7; border:3px solid #f59e0b; padding:15px; text-align:center; border-radius:10px; font-size: 22px; font-weight: 900; }
     </style>
 </head>
 <body>
     <div class="header">
-        <div class="header-title">
-            <span style="font-size: 28px;">📖</span>
-            <h1>بلغوا عني ولو آية</h1>
-        </div>
+        <h1>بلغوا عني ولو آية</h1>
     </div>
 
     <div class="toolbar">
         <div class="toolbar-buttons">
-            <button class="btn btn-search" onclick="toggleSearch()">🔍 بحث بالقرآن</button>
-            <button class="btn btn-fihris" onclick="toggleFihris()">📋 فهرس السور</button>
-        </div>
-    </div>
-
-    <div id="searchModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; padding:20px;">
-        <div style="background:white; border-radius:15px; padding:20px; max-width:500px; margin:50px auto; max-height:80vh; overflow-y:auto;">
-            <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <h2 style="font-size:20px;">البحث في الآيات</h2>
-                <button onclick="closeSearch()" style="background:#ef4444; color:white; border:none; padding:5px 15px; border-radius:8px; font-weight:bold;">إغلاق</button>
-            </div>
-            <input type="text" class="search-input" id="searchInput" placeholder="اكتب الكلمة هنا..." oninput="handleSearch()" style="width:100%; border:2px solid #10b981; border-radius:8px;">
-            <div id="searchResults" style="margin-top:15px;"></div>
-        </div>
-    </div>
-
-    <div id="fihrisModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:1000; padding:20px;">
-        <div style="background:white; border-radius:15px; padding:20px; max-width:500px; margin:50px auto; max-height:80vh; overflow-y:auto;">
-             <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-                <h2 style="font-size:20px;">فهرس السور</h2>
-                <button onclick="closeFihris()" style="background:#ef4444; color:white; border:none; padding:5px 15px; border-radius:8px; font-weight:bold;">إغلاق</button>
-            </div>
-            <div id="suraList" class="sura-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
+            <button class="btn btn-search" onclick="toggleSearch()">🔍 بـحـث</button>
+            <button class="btn btn-fihris" onclick="toggleFihris()">📋 فـهـرس</button>
         </div>
     </div>
 
     <div class="container">
-        <div id="loadingDiv" style="text-align:center; padding:50px; font-weight:bold;">جاري تحميل القرآن...</div>
+        <div id="loadingDiv" style="text-align:center; padding:50px; font-size:24px; font-weight:900;">جاري التحميل...</div>
         
         <div id="mainContent" style="display:none;">
             <div class="verse-card">
-                <div style="text-align:center; font-weight:900; color:#047857; margin-bottom:10px; font-size:18px;" id="suraNameDisplay"></div>
-                <div style="background:white; padding:15px; border-radius:8px; border:1px solid #ddd;">
+                <div style="text-align:center; font-weight:900; color:#047857; margin-bottom:15px; font-size:22px;" id="suraNameDisplay"></div>
+                <div style="background:white; padding:20px; border-radius:10px; border:2px solid #10b981;">
                     <p class="verse-text" id="verseText"></p>
                 </div>
             </div>
 
             <div class="nav-buttons">
-                <button class="nav-btn btn-prev" id="prevBtn" onclick="goPrevious()">◄ السابق</button>
-                <button class="nav-btn btn-share" onclick="shareVerse()">↗ مشاركة الآية</button>
-                <button class="nav-btn btn-next" id="nextBtn" onclick="goNext()">التالي ►</button>
+                <button class="nav-btn btn-prev" id="prevBtn" onclick="goPrevious()">السابق</button>
+                <button class="nav-btn btn-share" onclick="shareVerse()">مـشـاركـة</button>
+                <button class="nav-btn btn-next" id="nextBtn" onclick="goNext()">التالي</button>
             </div>
 
             <div class="dedication">
-                <p class="dedication-text">هذا العمل صدقة جارية عني وعن والديّ وزوجتي وأولادي</p>
-                <p class="dedication-sub">اللهم تقبل منا ومنكم صالح الأعمال</p>
+                <span class="dedication-text">هذا العمل صدقة جارية عني وعن والديّ وزوجتي وأولادي</span>
+                <span class="dedication-sub">اللهم تقبل منا ومنكم</span>
             </div>
 
             <div class="footer">
-                <p class="footer-name">تصميم وتنفيذ أ / خالد الجوهري</p>
-                <p class="footer-copyright">جميع الحقوق محفوظة © 2026</p>
+                <span class="footer-name">تصميم وتنفيذ أ / خالد الجوهري</span>
+                <span class="footer-copyright">جميع الحقوق محفوظة © 2026</span>
             </div>
+        </div>
+    </div>
+
+    <div id="searchModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; padding:20px;">
+        <div style="background:white; border-radius:15px; padding:20px; max-width:500px; margin:auto;">
+            <button onclick="closeSearch()" style="width:100%; background:#ef4444; color:white; padding:15px; border-radius:10px; font-weight:900; font-size:20px; margin-bottom:10px;">إغلاق البحث ✕</button>
+            <input type="text" id="searchInput" placeholder="اكتب للبحث..." oninput="handleSearch()" style="width:100%; padding:15px; font-size:20px; border:3px solid #10b981; border-radius:10px;">
+            <div id="searchResults" style="margin-top:15px; max-height:300px; overflow-y:auto;"></div>
+        </div>
+    </div>
+
+    <div id="fihrisModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; padding:20px;">
+        <div style="background:white; border-radius:15px; padding:20px; max-width:500px; margin:auto; max-height:90vh; overflow-y:auto;">
+            <button onclick="closeFihris()" style="width:100%; background:#ef4444; color:white; padding:15px; border-radius:10px; font-weight:900; font-size:20px; margin-bottom:10px;">إغلاق الفهرس ✕</button>
+            <div id="suraList" style="display:grid; grid-template-columns:1fr 1fr; gap:10px;"></div>
         </div>
     </div>
 
@@ -175,18 +157,12 @@
                     });
                 });
                 
-                // تعبئة الفهرس
                 const sList = document.getElementById('suraList');
                 suras.forEach(s => {
                     const div = document.createElement('div');
                     div.className = 'sura-item';
-                    div.style = "background:#fef3c7; border:2px solid #f59e0b; padding:10px; text-align:center; border-radius:8px; cursor:pointer; font-weight:900;";
                     div.innerText = s.name;
-                    div.onclick = () => {
-                        currentIndex = allVerses.findIndex(v => v.suraId === s.id);
-                        updateDisplay();
-                        closeFihris();
-                    };
+                    div.onclick = () => { currentIndex = allVerses.findIndex(v => v.suraId === s.id); updateDisplay(); closeFihris(); };
                     sList.appendChild(div);
                 });
 
@@ -194,7 +170,7 @@
                 document.getElementById('loadingDiv').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
                 updateDisplay();
-            } catch (e) { document.getElementById('loadingDiv').innerText = "خطأ في تحميل البيانات"; }
+            } catch (e) { document.getElementById('loadingDiv').innerText = "تأكد من وجود ملف quran.json"; }
         }
 
         function updateDisplay() {
@@ -202,6 +178,7 @@
             document.getElementById('verseText').innerText = v.text;
             document.getElementById('suraNameDisplay').innerText = v.suraName + " (آية " + v.verseId + ")";
             localStorage.setItem('lastReadIndex', currentIndex);
+            window.scrollTo(0,0);
         }
 
         function goNext() { if(currentIndex < allVerses.length-1) { currentIndex++; updateDisplay(); } }
@@ -210,7 +187,7 @@
         function shareVerse() {
             const v = allVerses[currentIndex];
             const t = `{ ${v.text} }\n[${v.suraName} - آية ${v.verseId}]\nتطبيق: بلغوا عني ولو آية`;
-            if(navigator.share) navigator.share({text: t}); else alert("تم نسخ النص:\n" + t);
+            if(navigator.share) navigator.share({text: t}); else { navigator.clipboard.writeText(t); alert("تم نسخ النص!"); }
         }
 
         function toggleSearch() { document.getElementById('searchModal').style.display = 'block'; }
@@ -223,9 +200,8 @@
             const res = document.getElementById('searchResults');
             if(!q) { res.innerHTML = ""; return; }
             const found = allVerses.filter(v => v.text.includes(q)).slice(0, 20);
-            res.innerHTML = found.map(f => `<div onclick="currentIndex=${allVerses.indexOf(f)}; updateDisplay(); closeSearch();" style="border-bottom:1px solid #eee; padding:10px; cursor:pointer;"><b>${f.suraName}:</b> ${f.text.substring(0,50)}...</div>`).join('');
+            res.innerHTML = found.map(f => `<div onclick="currentIndex=${allVerses.indexOf(f)}; updateDisplay(); closeSearch();" style="border-bottom:2px solid #eee; padding:15px; cursor:pointer; font-size:18px; font-weight:900;"><b>${f.suraName}:</b> ${f.text.substring(0,40)}...</div>`).join('');
         }
-
         loadData();
     </script>
 </body>
