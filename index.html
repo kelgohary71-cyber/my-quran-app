@@ -50,15 +50,17 @@
             max-width: 800px; 
             margin: 0 auto; 
         }
+        
+        /* تكبير الخط في أزرار البحث والفهرس */
         .btn { 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            gap: 6px; 
-            padding: 10px; 
+            gap: 8px; 
+            padding: 12px; 
             border: none; 
             border-radius: 8px; 
-            font-size: 14px; 
+            font-size: 18px; /* تكبير الخط */
             font-weight: bold; 
             cursor: pointer; 
             transition: transform 0.2s;
@@ -150,36 +152,42 @@
             color: #1f2937; 
         }
         
+        /* تعديل أزرار التنقل والمشاركة */
         .nav-buttons { 
             display: flex; 
+            align-items: center; /* محاذاة في الوسط */
             gap: 8px; 
             margin-bottom: 10px;
         }
         .nav-btn { 
-            flex: 1; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
             gap: 4px; 
-            padding: 12px; 
+            padding: 12px 5px; 
             border: none; 
             border-radius: 8px; 
-            font-size: 14px; 
+            font-size: 18px; /* خط كبير لجميع الأزرار */
             font-weight: bold; 
             color: white; 
             cursor: pointer; 
             transition: transform 0.2s;
             box-shadow: 0 3px 6px rgba(0,0,0,0.15);
         }
+        /* تصغير عرض أزرار السابق والتالي */
+        .btn-prev, .btn-next { 
+            flex: 1; 
+        }
+        /* تكبير عرض زر المشاركة */
+        .btn-share { 
+            background: #EC4899; 
+            flex: 2; /* تأخذ مساحة ضعف الأزرار الأخرى */
+            font-size: 20px; /* تمييز خط المشاركة بحجم أكبر قليلاً */
+        }
+        
         .nav-btn:active { transform: scale(0.95); }
         .nav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .btn-prev { background: #FF6B35; }
-        .btn-share { 
-            background: #EC4899; 
-            flex: 0 0 auto; 
-            padding-left: 16px; 
-            padding-right: 16px; 
-        }
         .btn-next { background: #8B5CF6; }
         
         .dedication { 
@@ -275,17 +283,17 @@
             color: white; 
             border: none; 
             padding: 5px 12px; 
-            border-radius: 5px; 
+            border-radius: 50px; 
             cursor: pointer; 
             font-weight: bold; 
-            font-size: 12px; 
+            font-size: 14px; 
         }
         .search-input { 
             width: 100%; 
-            padding: 10px; 
+            padding: 12px; 
             border: 2px solid #10b981; 
             border-radius: 8px; 
-            font-size: 14px; 
+            font-size: 16px; 
             margin-bottom: 12px;
             position: sticky;
             top: 60px;
@@ -315,12 +323,12 @@
             font-weight: bold; 
             color: #1f2937; 
             margin-bottom: 4px; 
-            font-size: 13px; 
+            font-size: 15px; 
         }
         .sura-info { 
             display: flex; 
             justify-content: space-between; 
-            font-size: 10px; 
+            font-size: 11px; 
             color: #6b7280; 
         }
         .search-results { 
@@ -341,11 +349,11 @@
             font-weight: bold; 
             color: #047857; 
             margin-bottom: 3px; 
-            font-size: 13px; 
+            font-size: 15px; 
             font-family: 'Amiri Quran', 'Amiri', serif;
         }
         .result-info { 
-            font-size: 11px; 
+            font-size: 12px; 
             color: #6b7280; 
         }
         .loading { 
@@ -431,7 +439,7 @@
                 </button>
                 <button class="nav-btn btn-share" onclick="shareVerse()">
                     <span>↗</span>
-                    <span>مشاركة</span>
+                    <span>مشاركة الآية</span>
                 </button>
                 <button class="nav-btn btn-next" id="nextBtn" onclick="goNext()">
                     <span>التالي</span>
@@ -458,10 +466,10 @@
 
         async function loadData() {
             try {
+                // ملاحظة: تأكد من أن الملف اسمه quran.json أو quran_uthmani.json حسب ما لديك
                 const response = await fetch('quran.json');
                 const suras = await response.json();
                 
-                // تحويل السور والآيات لقائمة واحدة
                 suras.forEach(sura => {
                     sura.verses.forEach(verse => {
                         allVerses.push({
@@ -474,9 +482,6 @@
                     });
                 });
                 
-                console.log('تم تحميل ' + allVerses.length + ' آية');
-                
-                // استخراج قائمة السور
                 suraList = suras.map(sura => ({
                     id: sura.id,
                     name: sura.name,
@@ -496,7 +501,7 @@
                 updateDisplay();
             } catch (error) {
                 console.error('خطأ في التحميل:', error);
-                document.getElementById('loadingDiv').innerHTML = 'خطأ في التحميل: ' + error.message + '<br>تأكد من وجود ملف quran.json';
+                document.getElementById('loadingDiv').innerHTML = 'خطأ في التحميل. تأكد من وجود ملف quran.json بنفس الاسم.';
             }
         }
 
@@ -515,36 +520,20 @@
 
         function updateDisplay() {
             if (currentIndex < 0 || currentIndex >= allVerses.length) return;
-            
             const verse = allVerses[currentIndex];
-            
             document.getElementById('verseText').textContent = verse.text;
             document.getElementById('suraName').textContent = verse.suraName + ' - الآية ' + verse.verseId;
-            
             const percent = Math.round(((currentIndex + 1) / allVerses.length) * 100);
             document.getElementById('progressText').textContent = 'الآية ' + (currentIndex + 1) + ' من ' + allVerses.length;
             document.getElementById('progressPercent').textContent = percent + '%';
             document.getElementById('progressFill').style.width = percent + '%';
-            
             document.getElementById('prevBtn').disabled = currentIndex === 0;
             document.getElementById('nextBtn').disabled = currentIndex === allVerses.length - 1;
-            
             localStorage.setItem('lastReadIndex', currentIndex);
         }
 
-        function goNext() {
-            if (currentIndex < allVerses.length - 1) {
-                currentIndex++;
-                updateDisplay();
-            }
-        }
-
-        function goPrevious() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateDisplay();
-            }
-        }
+        function goNext() { if (currentIndex < allVerses.length - 1) { currentIndex++; updateDisplay(); } }
+        function goPrevious() { if (currentIndex > 0) { currentIndex--; updateDisplay(); } }
 
         function shareVerse() {
             const verse = allVerses[currentIndex];
@@ -552,42 +541,29 @@
             if (navigator.share) {
                 navigator.share({ title: 'بلغوا عني ولو آية', text: text });
             } else {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert('✅ تم النسخ للحافظة!');
-                }).catch(() => {
-                    alert('📋 النص:\n\n' + text);
-                });
+                navigator.clipboard.writeText(text).then(() => alert('✅ تم النسخ للمشاركة!'));
             }
         }
 
         function toggleSearch() { document.getElementById('searchModal').classList.add('active'); }
-        function closeSearch() { document.getElementById('searchModal').classList.remove('active'); document.getElementById('searchInput').value = ''; document.getElementById('searchResults').innerHTML = ''; }
+        function closeSearch() { document.getElementById('searchModal').classList.remove('active'); }
         function toggleFihris() { document.getElementById('fihrisModal').classList.add('active'); }
         function closeFihris() { document.getElementById('fihrisModal').classList.remove('active'); }
 
         function handleSearch() {
             const query = document.getElementById('searchInput').value.trim();
             const resultsContainer = document.getElementById('searchResults');
-            
             if (!query) { resultsContainer.innerHTML = ''; return; }
-            
             const results = allVerses.filter(v => v.text.includes(query));
-            
-            if (results.length === 0) {
-                resultsContainer.innerHTML = '<p style="text-align:center;color:#6b7280;padding:20px;font-size:14px;">لا توجد نتائج للبحث</p>';
-                return;
-            }
-            
-            resultsContainer.innerHTML = '<p style="margin-bottom:10px;color:#6b7280;font-size:12px;font-weight:600;">عدد النتائج: ' + results.length + '</p>' + 
-                results.slice(0, 50).map(result => {
-                    const resultIndex = allVerses.indexOf(result);
-                    return `
-                        <div class="search-result-item" onclick="goToVerse(${resultIndex})">
-                            <div class="result-verse">${result.text.substring(0, 70)}...</div>
-                            <div class="result-info">${result.suraName} - الآية ${result.verseId}</div>
-                        </div>
-                    `;
-                }).join('');
+            resultsContainer.innerHTML = results.slice(0, 50).map(result => {
+                const resultIndex = allVerses.indexOf(result);
+                return `
+                    <div class="search-result-item" onclick="goToVerse(${resultIndex})">
+                        <div class="result-verse">${result.text}</div>
+                        <div class="result-info">${result.suraName} - الآية ${result.verseId}</div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function goToVerse(index) { currentIndex = index; updateDisplay(); closeSearch(); }
