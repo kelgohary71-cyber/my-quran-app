@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بلغوا عني ولو آية - الورد اليومي</title>
+    <title>بلغوا عني ولو آية - المصحف الكامل</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Cairo', sans-serif; 
             background: linear-gradient(135deg, #d1fae5 0%, #fef3c7 50%, #d1fae5 100%); 
-            min-height: 100vh; padding-bottom: 30px;
+            min-height: 100vh; padding-bottom: 40px;
         }
         
         .progress-header { 
@@ -19,56 +19,53 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3); border-bottom: 3px solid #fbbf24;
         }
         .header-main { display: flex; align-items: center; justify-content: center; gap: 15px; }
-        .app-logo { width: 55px; height: 55px; border-radius: 10px; border: 2px solid #fbbf24; object-fit: cover; }
+        .app-logo { width: 55px; height: 55px; border-radius: 10px; border: 2px solid #fbbf24; object-fit: cover; background: white; }
         .progress-info { font-size: 20px; font-weight: 900; }
-
-        .progress-bar-bg { background: #047857; height: 14px; border-radius: 7px; width: 85%; margin: 5px auto; overflow: hidden; border: 1px solid #fbbf24; }
-        #progress-fill { background: #fbbf24; height: 100%; width: 0%; transition: width 0.5s; }
 
         .container { max-width: 800px; margin: 0 auto; padding: 15px; }
 
-        .section-header { 
-            font-size: 18px; font-weight: 900; padding: 8px 20px; border-radius: 15px 15px 0 0; 
-            display: inline-block; margin-top: 10px; color: white;
+        /* --- شريط البحث والفهرس الجديد --- */
+        .search-section {
+            background: #065f46; padding: 15px; border-radius: 15px; 
+            margin-bottom: 20px; border: 2px solid #fbbf24;
+            display: flex; flex-direction: column; gap: 10px;
         }
+        .search-title { color: #fbbf24; font-weight: 900; font-size: 16px; margin-bottom: 5px; text-align: right; }
+        .controls-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        
+        select, .search-input { 
+            padding: 12px; border-radius: 8px; border: 2px solid #fbbf24; 
+            font-family: 'Cairo'; font-weight: bold; font-size: 16px; outline: none;
+        }
+        select { background: white; color: #065f46; flex: 1; min-width: 140px; }
+        .search-input { background: white; color: #333; flex: 2; min-width: 200px; }
+        /* ---------------------------------- */
+
+        .section-header { font-size: 18px; font-weight: 900; padding: 8px 20px; border-radius: 15px 15px 0 0; display: inline-block; margin-top: 10px; color: white; }
         .bg-quran { background: #10b981; }
         .bg-tafseer { background: #3b82f6; }
 
         .scroll-box { 
             background: white; border-radius: 0 15px 15px 15px; 
             padding: 20px; height: 380px; overflow-y: auto; margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-width: 4px; border-style: solid;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 4px solid;
         }
-        .quran-box { border-color: #10b981; background: #fffdf4; /* لون ورقي خفيف */ }
+        .quran-box { border-color: #10b981; background: #fffdf4; }
         .tafseer-box { border-color: #3b82f6; }
 
-        /* تعديل الخط العثماني ليكون بولد وكبير */
         .quran-text { 
-            font-family: 'Amiri Quran', serif; 
-            font-size: 34px; /* حجم كبير للآيات */
-            line-height: 2.2; 
-            text-align: center; 
-            color: #111; 
-            font-weight: 900; /* جعل الخط عريض جداً */
-            word-spacing: 4px;
+            font-family: 'Amiri Quran', serif; font-size: 32px; line-height: 2.2; 
+            text-align: center; color: #111; font-weight: 900; word-spacing: 4px;
         }
-        
-        .verse-info { color: #065f46; font-size: 18px; font-family: 'Cairo', sans-serif; font-weight: bold; }
-
-        .tafseer-text { font-size: 22px; font-weight: 800; color: #374151; line-height: 1.6; text-align: justify; }
-
-        .share-btn {
-            background: #3b82f6; color: white; border: none; padding: 15px; 
-            border-radius: 12px; font-weight: 900; cursor: pointer; width: 100%; 
-            font-size: 20px; margin-bottom: 20px;
-        }
+        .verse-info { color: #065f46; font-size: 18px; font-family: 'Cairo'; font-weight: bold; display: block; margin-top: 10px; }
+        .tafseer-text { font-size: 21px; font-weight: 800; color: #374151; line-height: 1.6; text-align: justify; }
 
         .nav-buttons { display: flex; gap: 15px; margin: 10px 0; }
-        .nav-btn { flex: 1; padding: 22px; border: none; border-radius: 15px; font-size: 24px; font-weight: 900; color: white; cursor: pointer; }
+        .nav-btn { flex: 1; padding: 20px; border: none; border-radius: 15px; font-size: 22px; font-weight: 900; color: white; cursor: pointer; box-shadow: 0 4px 0 #00000033; }
         .btn-prev { background: #FF6B35; }
-        .btn-next { background: #8B5CF6; border-bottom: 5px solid #5b21b6; }
+        .btn-next { background: #8B5CF6; }
 
-        .dedication { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 4px solid #fbbf24; border-radius: 15px; padding: 25px; text-align: center; color: white; margin-top: 30px; font-size: 20px; font-weight: 900; }
+        .dedication { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 3px solid #fbbf24; border-radius: 15px; padding: 25px; text-align: center; color: white; margin-top: 30px; font-size: 20px; font-weight: 900; }
         .footer { background: #047857; padding: 20px; text-align: center; color: white; border-radius: 12px; margin-top: 15px; font-size: 24px; font-weight: 900; }
     </style>
 </head>
@@ -76,17 +73,25 @@
 
     <div class="progress-header">
         <div class="header-main">
-            <img src="logo.png" alt="لوجو" class="app-logo" onerror="this.style.display='none'">
-            <div class="progress-info" id="day-counter">الورد اليومي...</div>
+            <img src="logo.png" alt="لوجو" class="app-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2972/2972449.png'">
+            <div class="progress-info">بلغوا عني ولو آية</div>
         </div>
-        <div class="progress-bar-bg"><div id="progress-fill"></div></div>
-        <div style="font-size: 14px; font-weight: 900; text-align:center" id="percent-text">0%</div>
     </div>
 
     <div class="container">
-        <div class="section-header bg-quran">نص الـ 20 آية (بالرسم العثماني):</div>
+        <div class="search-section">
+            <div class="search-title">ابحث عن سورة أو آية:</div>
+            <div class="controls-row">
+                <select id="suraSelect" onchange="jumpToSura()">
+                    <option value="">📖 فهرس السور</option>
+                </select>
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 اكتب الكلمة للبحث..." onkeyup="searchQuran()">
+            </div>
+        </div>
+
+        <div class="section-header bg-quran">آيات الورد الكريم:</div>
         <div class="scroll-box quran-box" id="q-box-scroll">
-            <div id="quran-content" class="quran-text">جاري تحميل الآيات...</div>
+            <div id="quran-content" class="quran-text">جاري تحميل المصحف الشريف...</div>
         </div>
 
         <div class="section-header bg-tafseer">التفسير الميسر:</div>
@@ -94,14 +99,12 @@
             <div id="tafseer-content" class="tafseer-text">جاري تحميل التفسير...</div>
         </div>
 
-        <button class="share-btn" onclick="shareFullWird()">مشاركة ورد اليوم كاملاً 🔗</button>
-
         <div class="nav-buttons">
             <button class="nav-btn btn-prev" onclick="changePage(-1)">الورد السابق</button>
             <button class="nav-btn btn-next" onclick="changePage(1)">الورد التالي</button>
         </div>
 
-        <div class="dedication">صدقة جارية عني وعن والديا وزوجتي وأولادي</div>
+        <div class="dedication">صدقة جارية عني وعن والديّ وزوجتي وأولادي</div>
         <div class="footer">أ / خالد الجوهري</div>
     </div>
 
@@ -109,92 +112,74 @@
         let allVerses = [];
         let tafseerData = [];
         let currentPage = 0;
-        const pageSize = 20;
+        const pageSize = 10;
 
         async function init() {
             try {
-                const quranResponse = await fetch('quran.json');
-                const suras = await quranResponse.json();
+                const qResponse = await fetch('quran.json');
+                const suras = await qResponse.json();
                 
+                // ملء الفهرس
+                const select = document.getElementById('suraSelect');
                 suras.forEach(sura => {
-                    sura.verses.forEach(verse => {
-                        allVerses.push({
-                            text: verse.text,
-                            suraNumber: sura.id,
-                            suraName: sura.name,
-                            verseNumber: verse.id
-                        });
+                    let opt = document.createElement('option');
+                    opt.value = sura.name; opt.textContent = sura.name;
+                    select.appendChild(opt);
+                    
+                    sura.verses.forEach(v => {
+                        allVerses.push({ text: v.text, sNum: sura.id, sName: sura.name, vNum: v.id });
                     });
                 });
 
-                const tafseerResponse = await fetch('tafseer.json');
-                tafseerData = await tafseerResponse.json();
+                const tResponse = await fetch('tafseer.json');
+                tafseerData = await tResponse.json();
                 
-                currentPage = parseInt(localStorage.getItem('currentWirdPage') || '0');
                 render();
             } catch (e) {
-                document.getElementById('quran-content').innerHTML = "<span style='color:red'>تأكد من وجود quran.json و tafseer.json</span>";
+                document.getElementById('quran-content').innerHTML = "حدث خطأ في تحميل البيانات";
             }
         }
 
-        function render() {
-            const qBox = document.getElementById('quran-content');
-            const tBox = document.getElementById('tafseer-content');
-            
-            let qHTML = "";
-            let tHTML = "";
-
+        function render(filteredData = null) {
+            const dataToDisplay = filteredData || allVerses;
             const start = currentPage * pageSize;
-            const currentSet = allVerses.slice(start, start + pageSize);
-
-            currentSet.forEach(verse => {
-                // نص الآية عريض جداً
-                qHTML += `<div style="margin-bottom:20px;">
-                            <span>${verse.text}</span> 
-                            <span class="verse-info">﴿${verse.suraName}: ${verse.verseNumber}﴾</span>
-                          </div>`;
-                
-                const tafseer = tafseerData.find(t => 
-                    parseInt(t.number) === verse.suraNumber && 
-                    parseInt(t.aya) === verse.verseNumber
-                );
-                
-                tHTML += `<p style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
-                            <strong>${verse.suraName} (${verse.verseNumber}):</strong><br>
-                            ${tafseer ? tafseer.text : "التفسير غير متوفر"}
-                          </p>`;
-            });
-
-            qBox.innerHTML = qHTML;
-            tBox.innerHTML = tHTML;
-
-            const totalPages = Math.ceil(allVerses.length / pageSize);
-            const progress = totalPages > 1 ? ((currentPage / (totalPages - 1)) * 100).toFixed(1) : 100;
+            const currentSet = dataToDisplay.slice(start, start + pageSize);
             
-            document.getElementById('day-counter').innerText = `الورد ${currentPage + 1} من ${totalPages}`;
-            document.getElementById('progress-fill').style.width = progress + "%";
-            document.getElementById('percent-text').innerText = `إنجاز الختمة: ${progress}%`;
-
-            localStorage.setItem('currentWirdPage', currentPage);
+            let qHTML = ""; let tHTML = "";
+            currentSet.forEach(v => {
+                qHTML += `<div style="margin-bottom:30px;">${v.text} <span class="verse-info">﴿${v.sName}: ${v.vNum}﴾</span></div>`;
+                const t = tafseerData.find(t => parseInt(t.number) === v.sNum && parseInt(t.aya) === v.vNum);
+                tHTML += `<p style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;"><strong>${v.sName} (${v.vNum}):</strong><br>${t ? t.text : "التفسير غير متوفر حالياً"}</p>`;
+            });
+            
+            document.getElementById('quran-content').innerHTML = qHTML || "لا توجد نتائج للبحث";
+            document.getElementById('tafseer-content').innerHTML = tHTML;
             document.getElementById('q-box-scroll').scrollTop = 0;
-            document.getElementById('t-box-scroll').scrollTop = 0;
         }
 
         function changePage(dir) {
-            const totalPages = Math.ceil(allVerses.length / pageSize);
-            const newPage = currentPage + dir;
-            if (newPage >= 0 && newPage < totalPages) {
-                currentPage = newPage;
+            if ((currentPage + dir) * pageSize >= 0 && (currentPage + dir) * pageSize < allVerses.length) {
+                currentPage += dir; render();
+            }
+        }
+
+        function jumpToSura() {
+            const name = document.getElementById('suraSelect').value;
+            if(name) {
+                const idx = allVerses.findIndex(v => v.sName === name);
+                currentPage = Math.floor(idx / pageSize);
                 render();
             }
         }
 
-        function shareFullWird() {
-            const textToShare = `ورد اليوم من تطبيق بلغوا عني ولو آية\nالورد رقم ${currentPage + 1}\n${window.location.href}`;
-            if (navigator.share) {
-                navigator.share({ title: 'ورد القرآن', text: textToShare });
-            } else {
-                navigator.clipboard.writeText(textToShare).then(() => alert("✅ تم نسخ رابط الورد!"));
+        function searchQuran() {
+            const term = document.getElementById('searchInput').value.trim();
+            if (term.length >= 3) {
+                const filtered = allVerses.filter(v => v.text.includes(term));
+                currentPage = 0;
+                render(filtered);
+            } else if (term === "") {
+                render();
             }
         }
 
