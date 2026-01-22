@@ -24,15 +24,34 @@
 
         .container { max-width: 800px; margin: 0 auto; padding: 15px; }
 
+        /* زر الورد اليوم */
+        .wird-button {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white; border: none; padding: 25px; 
+            border-radius: 15px; font-weight: 900; cursor: pointer; width: 100%; 
+            font-size: 28px; margin-bottom: 20px; box-shadow: 0 6px 0 #047857;
+            font-family: 'Cairo'; border: 3px solid #fbbf24;
+            transition: transform 0.2s;
+        }
+        .wird-button:active { transform: translateY(3px); box-shadow: 0 3px 0 #047857; }
+
         .controls-box {
             background: #047857; padding: 20px; border-radius: 15px; 
             margin-bottom: 20px; border: 3px solid #fbbf24;
-            display: flex; flex-direction: column; gap: 12px;
+            display: none; /* مخفي افتراضيًا */
+            flex-direction: column; gap: 12px;
         }
+        .controls-box.active { display: flex; }
+        
         .search-input, .sura-select { 
             width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #fbbf24; 
             font-family: 'Cairo'; font-weight: 900; font-size: 18px; color: #065f46;
         }
+
+        .content-area {
+            display: none; /* مخفي افتراضيًا */
+        }
+        .content-area.active { display: block; }
 
         .section-header { font-size: 20px; font-weight: 900; padding: 10px 25px; border-radius: 15px 15px 0 0; display: inline-block; color: white; }
         .bg-quran { background: #10b981; }
@@ -53,7 +72,6 @@
         .verse-info { color: #065f46; font-size: 20px; font-weight: bold; display: block; margin-top: 10px; font-family: 'Cairo'; }
         .tafseer-text { font-size: 22px; font-weight: 800; color: #333; line-height: 1.7; text-align: justify; }
 
-        /* زرار المشاركة - مشاركة المحتوى الحالي */
         .share-btn {
             background: #2563eb; color: white; border: none; padding: 20px; 
             border-radius: 15px; font-weight: 900; cursor: pointer; width: 100%; 
@@ -83,34 +101,39 @@
 
     <div class="progress-header">
         <div class="header-main">
-            <img src="logo.png" alt="لوجو" class="app-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2972/2972449.png'">
+            <img src="https://kelgohary71-cyber.github.io/my-quran-app/logo.png" alt="بلغوا عني ولو آية" class="app-logo">
             <div class="progress-info">بلغوا عني ولو آية</div>
         </div>
     </div>
 
     <div class="container">
-        <div class="controls-box">
+        <!-- زر الورد اليوم -->
+        <button class="wird-button" onclick="showWird()">📖 الورد اليوم</button>
+
+        <div class="controls-box" id="controlsBox">
             <select id="suraSelect" class="sura-select" onchange="jumpToSura()">
                 <option value="">📖 الفهرس (اختر السورة)</option>
             </select>
             <input type="text" id="searchInput" class="search-input" placeholder="🔍 اكتب هنا للبحث عن كلمة..." onkeyup="searchQuran()">
         </div>
 
-        <div class="section-header bg-quran">الآيات الكريمات:</div>
-        <div class="scroll-box quran-box" id="q-box-scroll">
-            <div id="quran-content" class="quran-text">جاري تحميل المصحف...</div>
-        </div>
+        <div class="content-area" id="contentArea">
+            <div class="section-header bg-quran">الآيات الكريمات:</div>
+            <div class="scroll-box quran-box" id="q-box-scroll">
+                <div id="quran-content" class="quran-text">اضغط على "الورد اليوم" لبدء القراءة...</div>
+            </div>
 
-        <div class="section-header bg-tafseer">التفسير الميسر:</div>
-        <div class="scroll-box tafseer-box" id="t-box-scroll">
-            <div id="tafseer-content" class="tafseer-text">جاري تحميل التفسير...</div>
-        </div>
+            <div class="section-header bg-tafseer">التفسير الميسر:</div>
+            <div class="scroll-box tafseer-box" id="t-box-scroll">
+                <div id="tafseer-content" class="tafseer-text">التفسير سيظهر هنا...</div>
+            </div>
 
-        <button class="share-btn" onclick="shareCurrentWird()">مشاركة هذا الورد (آيات وتفسير) 🔗</button>
+            <button class="share-btn" onclick="shareCurrentWird()">مشاركة هذا الورد (آيات وتفسير) 🔗</button>
 
-        <div class="nav-buttons">
-            <button class="nav-btn btn-prev" onclick="changePage(-1)">السابق</button>
-            <button class="nav-btn btn-next" onclick="changePage(1)">التالي</button>
+            <div class="nav-buttons">
+                <button class="nav-btn btn-prev" onclick="changePage(-1)">السابق</button>
+                <button class="nav-btn btn-next" onclick="changePage(1)">التالي</button>
+            </div>
         </div>
 
         <div class="dedication">صدقة جارية عني وعن والديّ وزوجتي وأولادي</div>
@@ -122,8 +145,10 @@
         let tafseerData = [];
         let currentPage = 0;
         const pageSize = 10;
-        let currentDisplayedVerses = []; // لتخزين ما هو معروض حالياً للمشاركة
+        let currentDisplayedVerses = [];
+        let dataLoaded = false;
 
+        // تحميل البيانات فورًا عند فتح التطبيق (في الخلفية)
         async function init() {
             try {
                 const qRes = await fetch('quran.json');
@@ -141,8 +166,20 @@
 
                 const tRes = await fetch('tafseer.json');
                 tafseerData = await tRes.json();
-                render();
-            } catch (e) { document.getElementById('quran-content').innerHTML = "خطأ في تحميل الملفات"; }
+                dataLoaded = true;
+            } catch (e) { 
+                console.error("خطأ في تحميل الملفات:", e);
+            }
+        }
+
+        function showWird() {
+            if (!dataLoaded) {
+                alert("⏳ جاري تحميل البيانات، انتظر لحظة...");
+                return;
+            }
+            document.getElementById('controlsBox').classList.add('active');
+            document.getElementById('contentArea').classList.add('active');
+            render();
         }
 
         function render(data = null) {
@@ -166,7 +203,6 @@
         function jumpToSura() { const n = document.getElementById('suraSelect').value; if(n){ currentPage = Math.floor(allVerses.findIndex(v=>v.sName===n)/pageSize); render(); } }
         function searchQuran() { const t = document.getElementById('searchInput').value; if(t.length>2){ render(allVerses.filter(v=>v.text.includes(t))); } else if(!t){ render(); } }
         
-        // وظيفة مشاركة الورد المعروض حالياً
         function shareCurrentWird() {
             let message = "📖 ورد اليوم من تطبيق (بلغوا عني ولو آية):\n\n";
             currentDisplayedVerses.forEach(v => {
@@ -181,6 +217,7 @@
             }
         }
         
+        // تحميل البيانات فور فتح التطبيق
         init();
     </script>
 </body>
