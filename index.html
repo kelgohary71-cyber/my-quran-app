@@ -1,8 +1,28 @@
 <!DOCTYPE html>
+<!--
+╔══════════════════════════════════════════════════════════════════════════╗
+║  تطبيق: بلغوا عني ولو آية                                                ║
+║  المطور: الأستاذ / خالد الجوهري                                          ║
+║  Copyright © 2025 - All Rights Reserved                                 ║
+║  ════════════════════════════════════════════════════════════════════    ║
+║  📜 شروط الاستخدام:                                                     ║
+║  ✅ يُسمح بالاستخدام والمشاركة المجانية                                ║
+║  ✅ يُسمح بالتعديل والتطوير للأغراض الخيرية                            ║
+║  ⚠️  يُمنع الاستخدام التجاري أو إعادة البيع                            ║
+║  ⚠️  عند استخدام أي جزء من هذا الكود يجب كتابة:                        ║
+║      "مأخوذ من مشروع الأستاذ خالد الجوهري - صدقة جارية"                ║
+║  ════════════════════════════════════════════════════════════════════    ║
+║  MIT License with Attribution Requirement                               ║
+║  Original Project: https://kelgohary7cyber.github.io/my-quran-app/   ║
+╚══════════════════════════════════════════════════════════════════════════╝
+-->
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="author" content="Khaled El-Gohary">
+    <meta name="copyright" content="Copyright 2025 Khaled El-Gohary">
+    <meta name="description" content="تطبيق الورد القرآني اليومي مع التفسير الميسر - صدقة جارية">
     <title>بلغوا عني ولو آية</title>
     <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <style>
@@ -47,8 +67,8 @@
         .controls-box.active { display: flex; }
         
         .search-input, .sura-select { 
-            width: 100%; padding: 15px; border-radius: 10px; border: 2px solid #fbbf24; 
-            font-family: 'Cairo'; font-weight: 900; font-size: 18px; color: #065f46;
+            width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #fbbf24; 
+            font-family: 'Cairo'; font-weight: 900; font-size: clamp(16px, 4vw, 18px); color: #065f46;
         }
 
         .content-area {
@@ -56,7 +76,10 @@
         }
         .content-area.active { display: block; }
 
-        .section-header { font-size: 20px; font-weight: 900; padding: 10px 25px; border-radius: 15px 15px 0 0; display: inline-block; color: white; }
+        .section-header { 
+            font-size: clamp(16px, 4vw, 20px); font-weight: 900; padding: 10px 20px; 
+            border-radius: 15px 15px 0 0; display: inline-block; color: white; 
+        }
         .bg-quran { background: #10b981; }
         .bg-tafseer { background: #3b82f6; }
 
@@ -120,7 +143,7 @@
 
     <div class="progress-header">
         <div class="header-main">
-            <img src="https://raw.githubusercontent.com/kelgohary71-cyber/my-quran-app/main/logo.png" alt="بلغوا عني ولو آية" class="app-logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2972/2972449.png'">
+            <img src="logo.png" alt="بلغوا عني ولو آية" class="app-logo" onerror="this.src='https://raw.githubusercontent.com/kelgohary71-cyber/my-quran-app/main/logo.png'">
             <div class="progress-info">بلغوا عني ولو آية</div>
         </div>
     </div>
@@ -156,10 +179,13 @@
         </div>
 
         <div class="dedication">صدقة جارية عني وعن والديّا وزوجتي وأولادي</div>
-        <div class="footer">أ / خالد الجوهري</div>
+        <div class="footer">أ / خالد الجوهري - جميع الحقوق محفوظة © 2025</div>
     </div>
 
     <script>
+        // حماية من نسخ الكود (اختياري - يمكن حذفه إذا أردت السماح بالنسخ)
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
         let allVerses = [];
         let tafseerData = [];
         let currentPage = 0;
@@ -227,7 +253,10 @@
             currentDisplayedVerses.forEach(v => {
                 message += `🔹 ${v.text} (${v.sName}: ${v.vNum})\n🔸 التفسير: ${v.tafseer}\n\n`;
             });
-            message += "✨ صدقة جارية للأستاذ خالد الجوهري\n🔗 رابط التطبيق:\n" + window.location.href;
+            message += "✨ صدقة جارية للأستاذ خالد الجوهري\n";
+            message += "📱 حمّل التطبيق من:\n";
+            message += "🔗 " + window.location.href + "\n";
+            message += "© 2025 - جميع الحقوق محفوظة";
 
             if (navigator.share) {
                 navigator.share({ title: 'مشاركة الورد القرآني', text: message });
@@ -238,6 +267,13 @@
         
         // تحميل البيانات فور فتح التطبيق
         init();
+        
+        // رسالة في Console للمطورين
+        console.log('%c⚠️ تنبيه مهم', 'color: red; font-size: 20px; font-weight: bold;');
+        console.log('%cهذا التطبيق صدقة جارية ومجاني تماماً', 'font-size: 14px;');
+        console.log('%cيُمنع الاستخدام التجاري أو إعادة البيع', 'font-size: 14px;');
+        console.log('%cعند استخدام الكود يجب كتابة: مأخوذ من مشروع الأستاذ خالد الجوهري', 'font-size: 14px;');
+        console.log('%c© 2025 Khaled El-Gohary - All Rights Reserved', 'font-size: 12px; color: gray;');
     </script>
 </body>
 </html>
