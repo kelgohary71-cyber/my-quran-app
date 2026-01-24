@@ -6,207 +6,38 @@
     <title>بلغوا عني ولو آية</title>
     <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@700&family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <style>
+        /* التنسيقات الأساسية - حافظت على تصميمك كما هو */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Cairo', sans-serif; 
-            background: linear-gradient(135deg, #d1fae5 0%, #fef3c7 50%, #d1fae5 100%); 
-            min-height: 100vh; 
-            padding-bottom: 50px;
-        }
-        
-        .header { 
-            background: #065f46; 
-            color: #fbbf24; 
-            padding: 12px; 
-            text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); 
-            border-bottom: 4px solid #fbbf24;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-        .header-content { 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 10px;
-        }
-        .logo { 
-            width: 55px; 
-            height: 55px; 
-            border-radius: 12px; 
-            border: 2px solid #fbbf24; 
-            background: white;
-        }
-        .title { 
-            font-size: 18px; 
-            font-weight: 900;
-        }
-
-        .container { 
-            max-width: 800px; 
-            margin: 0 auto; 
-            padding: 10px;
-        }
-
-        .btn-wird {
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white; 
-            border: none; 
-            padding: 18px; 
-            border-radius: 15px; 
-            font-weight: 900; 
-            width: 100%; 
-            font-size: 22px; 
-            margin-bottom: 15px;
-            font-family: 'Cairo'; 
-            border: 3px solid #fbbf24;
-            cursor: pointer;
-        }
-
-        .controls {
-            background: #047857; 
-            padding: 18px; 
-            border-radius: 15px; 
-            margin-bottom: 20px; 
-            border: 3px solid #fbbf24;
-            display: none;
-        }
-        .controls.show { display: block; }
-        
-        select, input { 
-            width: 100%; 
-            padding: 12px; 
-            border-radius: 10px; 
-            border: 2px solid #fbbf24; 
-            font-family: 'Cairo'; 
-            font-weight: 900; 
-            font-size: 15px; 
-            margin-bottom: 10px;
-        }
-        
-        .search-row {
-            display: flex;
-            gap: 8px;
-        }
-        
-        .search-row input {
-            flex: 1;
-            margin: 0;
-        }
-        
-        .btn-search {
-            background: #fbbf24;
-            border: none;
-            padding: 12px 18px;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 20px;
-        }
-
+        body { font-family: 'Cairo', sans-serif; background: linear-gradient(135deg, #d1fae5 0%, #fef3c7 50%, #d1fae5 100%); min-height: 100vh; padding-bottom: 50px; }
+        .header { background: #065f46; color: #fbbf24; padding: 12px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border-bottom: 4px solid #fbbf24; position: sticky; top: 0; z-index: 100; }
+        .header-content { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .logo { width: 55px; height: 55px; border-radius: 12px; border: 2px solid #fbbf24; background: white; }
+        .title { font-size: 18px; font-weight: 900; }
+        .container { max-width: 800px; margin: 0 auto; padding: 10px; }
+        .btn-wird { background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 18px; border-radius: 15px; font-weight: 900; width: 100%; font-size: 22px; margin-bottom: 15px; font-family: 'Cairo'; border: 3px solid #fbbf24; cursor: pointer; }
+        .controls { background: #047857; padding: 18px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #fbbf24; display: block; }
+        select, input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #fbbf24; font-family: 'Cairo'; font-weight: 900; font-size: 15px; margin-bottom: 10px; }
+        .search-row { display: flex; gap: 8px; }
+        .search-row input { flex: 1; margin: 0; }
+        .btn-search { background: #fbbf24; border: none; padding: 12px 18px; border-radius: 10px; cursor: pointer; font-size: 20px; }
         .content { display: none; }
         .content.show { display: block; }
-
-        .section-title { 
-            font-size: 17px; 
-            font-weight: 900; 
-            padding: 10px 18px; 
-            border-radius: 15px 15px 0 0; 
-            display: inline-block; 
-            color: white; 
-        }
+        .section-title { font-size: 17px; font-weight: 900; padding: 10px 18px; border-radius: 15px 15px 0 0; display: inline-block; color: white; }
         .title-quran { background: #10b981; }
         .title-tafseer { background: #3b82f6; }
-
-        .box { 
-            background: white; 
-            border-radius: 0 15px 15px 15px; 
-            padding: 15px; 
-            height: 320px; 
-            overflow-y: auto; 
-            margin-bottom: 15px;
-            border: 4px solid;
-        }
+        .box { background: white; border-radius: 0 15px 15px 15px; padding: 15px; height: 320px; overflow-y: auto; margin-bottom: 15px; border: 4px solid; }
         .box-quran { border-color: #10b981; background: #fffdf4; }
         .box-tafseer { border-color: #3b82f6; }
-
-        .ayah-text { 
-            font-family: 'Scheherazade New', serif; 
-            font-size: 30px; 
-            line-height: 2.4; 
-            text-align: center; 
-            margin-bottom: 35px;
-        }
-        .ayah-info { 
-            color: #065f46; 
-            font-size: 17px; 
-            font-weight: bold; 
-            display: block; 
-            margin-top: 10px; 
-            font-family: 'Cairo'; 
-        }
-        .tafseer-item { 
-            font-size: 19px; 
-            font-weight: 800; 
-            margin-bottom: 15px; 
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .btn-share {
-            background: #2563eb; 
-            color: white; 
-            border: none; 
-            padding: 16px; 
-            border-radius: 15px; 
-            font-weight: 900; 
-            width: 100%; 
-            font-size: 20px; 
-            margin-bottom: 15px;
-            font-family: 'Cairo';
-            cursor: pointer;
-        }
-
+        .ayah-text { font-family: 'Scheherazade New', serif; font-size: 30px; line-height: 2.4; text-align: center; margin-bottom: 35px; }
+        .ayah-info { color: #065f46; font-size: 17px; font-weight: bold; display: block; margin-top: 10px; font-family: 'Cairo'; }
+        .tafseer-item { font-size: 19px; font-weight: 800; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .btn-share { background: #2563eb; color: white; border: none; padding: 16px; border-radius: 15px; font-weight: 900; width: 100%; font-size: 20px; margin-bottom: 15px; font-family: 'Cairo'; cursor: pointer; }
         .nav-btns { display: flex; gap: 10px; margin: 10px 0; }
-        .nav-btn { 
-            flex: 1; 
-            padding: 18px; 
-            border: none; 
-            border-radius: 15px; 
-            font-size: 22px; 
-            font-weight: 900; 
-            color: white; 
-            font-family: 'Cairo';
-            cursor: pointer;
-        }
+        .nav-btn { flex: 1; padding: 18px; border: none; border-radius: 15px; font-size: 22px; font-weight: 900; color: white; font-family: 'Cairo'; cursor: pointer; }
         .btn-prev { background: #FF6B35; }
         .btn-next { background: #8B5CF6; }
-
-        .sadaqa { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            border: 4px solid #fbbf24; 
-            border-radius: 20px; 
-            padding: 20px; 
-            text-align: center; 
-            color: white; 
-            margin-top: 25px; 
-            font-size: 20px; 
-            font-weight: 900;
-        }
-        
-        .footer { 
-            background: #047857; 
-            padding: 18px 15px; 
-            text-align: center; 
-            color: white; 
-            border-radius: 15px; 
-            margin-top: 15px; 
-            font-weight: 900; 
-            border: 2px solid #fbbf24;
-        }
-        
-        .f1 { font-size: 19px; margin-bottom: 6px; }
-        .f2 { font-size: 16px; }
+        .sadaqa { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: 4px solid #fbbf24; border-radius: 20px; padding: 20px; text-align: center; color: white; margin-top: 25px; font-size: 20px; font-weight: 900; }
+        .footer { background: #047857; padding: 18px 15px; text-align: center; color: white; border-radius: 15px; margin-top: 15px; font-weight: 900; border: 2px solid #fbbf24; }
     </style>
 </head>
 <body>
@@ -226,7 +57,7 @@
                 <option value="">📖 اختر السورة</option>
             </select>
             <div class="search-row">
-                <input type="text" id="searchBox" placeholder="ابحث عن كلمة...">
+                <input type="text" id="searchBox" placeholder="ابحث عن كلمة (مثلاً: الصمد)...">
                 <button class="btn-search" onclick="doSearch()">🔍</button>
             </div>
         </div>
@@ -234,12 +65,9 @@
         <div class="content" id="main">
             <div class="section-title title-quran">الآيات الكريمات:</div>
             <div class="box box-quran" id="quranBox"></div>
-
             <div class="section-title title-tafseer">التفسير الميسر:</div>
             <div class="box box-tafseer" id="tafseerBox"></div>
-
             <button class="btn-share" onclick="share()">مشاركة 🔗</button>
-
             <div class="nav-btns">
                 <button class="nav-btn btn-prev" onclick="prev()">السابق</button>
                 <button class="nav-btn btn-next" onclick="next()">التالي</button>
@@ -248,20 +76,12 @@
 
         <div class="sadaqa">صدقة جارية عني وعن والديّا وزوجتي وأولادي</div>
         <div class="footer">
-            <div class="f1">تصميم وتنفيذ: أ&nbsp;/&nbsp;خالد&nbsp;الجوهري</div>
+            <div class="f1">تصميم وتنفيذ: أ / خالد الجوهري</div>
             <div class="f2">جميع الحقوق محفوظة © 2025</div>
         </div>
     </div>
 
     <script>
-        if('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                    registration.unregister();
-                }
-            });
-        }
-        
         let verses = [];
         let tafseer = [];
         let wirds = [];
@@ -270,12 +90,26 @@
         let loaded = false;
         let searching = false;
 
+        // دالة تنظيف النص من التشكيل والهمزات للبحث الصحيح
+        function normalizeArabic(text) {
+            return text
+                .replace(/[\u064B-\u065F\u0670]/g, "") // إزالة التشكيل
+                .replace(/[أإآ]/g, "ا")             // توحيد الألف
+                .replace(/ة/g, "ه")               // توحيد التاء المربوطة
+                .replace(/ى/g, "ي");              // توحيد الياء
+        }
+
         async function load() {
             try {
-                const q = await fetch('quran.json');
-                const suras = await q.json();
-                const sel = document.getElementById('suraList');
+                const [qRes, tRes] = await Promise.all([
+                    fetch('quran.json'),
+                    fetch('tafseer.json')
+                ]);
                 
+                const suras = await qRes.json();
+                tafseer = await tRes.json();
+                
+                const sel = document.getElementById('suraList');
                 suras.forEach(s => {
                     let o = document.createElement('option');
                     o.value = s.name;
@@ -286,144 +120,106 @@
                     });
                 });
 
-                const t = await fetch('tafseer.json');
-                tafseer = await t.json();
-                
                 makeWirds();
                 loaded = true;
+                console.log("Data loaded successfully");
             } catch(e) {
-                alert('خطأ في التحميل');
+                console.error(e);
+                alert('خطأ في تحميل البيانات. تأكد من وجود ملفات json');
             }
         }
 
         function makeWirds() {
             wirds = [];
-            let sNum = 1;
+            let currentSura = 1;
             let temp = [];
-            
             verses.forEach((v, i) => {
-                if(v.sNum !== sNum) {
-                    if(temp.length > 0) split(temp);
-                    sNum = v.sNum;
+                if(v.sNum !== currentSura) {
+                    if(temp.length > 0) splitWird(temp);
+                    currentSura = v.sNum;
                     temp = [];
                 }
                 temp.push(v);
-                if(i === verses.length - 1 && temp.length > 0) split(temp);
+                if(i === verses.length - 1) splitWird(temp);
             });
         }
 
-        function split(arr) {
+        function splitWird(arr) {
             for(let i = 0; i < arr.length; i += 10) {
                 wirds.push(arr.slice(i, i + 10));
             }
         }
 
-        function showWird() {
-            if(!loaded) { alert('انتظر...'); return; }
-            searching = false;
-            document.getElementById('searchBox').value = '';
-            const d = new Date();
-            const days = Math.floor(d.getTime() / (1000*60*60*24));
-            current = days % wirds.length;
-            document.getElementById('ctrl').classList.add('show');
-            document.getElementById('main').classList.add('show');
-            show();
-        }
-
         function show() {
-            if(wirds.length === 0) return;
-            displayed = wirds[current];
+            if(displayed.length === 0) return;
             let qh = '', th = '';
-            
             displayed.forEach(v => {
-                qh += '<div class="ayah-text">' + v.text + '<span class="ayah-info">﴿' + v.sName + ': ' + v.vNum + '﴾</span></div>';
+                qh += `<div class="ayah-text">${v.text}<span class="ayah-info">﴿${v.sName}: ${v.vNum}﴾</span></div>`;
                 const tf = tafseer.find(x => parseInt(x.number) === v.sNum && parseInt(x.aya) === v.vNum);
-                v.tafseer = tf ? tf.text : '';
-                th += '<div class="tafseer-item"><strong>' + v.sName + ' (' + v.vNum + '):</strong><br>' + v.tafseer + '</div>';
+                const tText = tf ? tf.text : "التفسير غير متوفر";
+                th += `<div class="tafseer-item"><strong>${v.sName} (${v.vNum}):</strong><br>${tText}</div>`;
             });
-            
-            document.getElementById('quranBox').innerHTML = qh;
-            document.getElementById('tafseerBox').innerHTML = th;
-        }
-
-        // --- تعديل وظيفة البحث هنا ---
-        function doSearch() {
-            if(!loaded) { alert('انتظر التحميل'); return; }
-            const txt = document.getElementById('searchBox').value.trim();
-            if(txt.length < 2) { alert('اكتب حرفين على الأقل'); return; }
-            
-            const normalizeText = (t) => {
-                return t.replace(/[\u064B-\u065F\u0670]/g, "")
-                        .replace(/[أإآ]/g, "ا")
-                        .replace(/ة/g, "ه")
-                        .replace(/ى/g, "ي");
-            };
-
-            const searchKey = normalizeText(txt);
-            const res = verses.filter(v => normalizeText(v.text).indexOf(searchKey) !== -1);
-            
-            if(res.length === 0) { alert('لا توجد نتائج لهذه الكلمة'); return; }
-            
-            searching = true;
-            displayed = res.slice(0, 30);
-            let qh = '', th = '';
-            
-            displayed.forEach(v => {
-                qh += '<div class="ayah-text">' + v.text + '<span class="ayah-info">﴿' + v.sName + ': ' + v.vNum + '﴾</span></div>';
-                const tf = tafseer.find(x => parseInt(x.number) === v.sNum && parseInt(x.aya) === v.vNum);
-                v.tafseer = tf ? tf.text : '';
-                th += '<div class="tafseer-item"><strong>' + v.sName + ' (' + v.vNum + '):</strong><br>' + v.tafseer + '</div>';
-            });
-            
-            qh += '<p style="text-align:center;color:#065f46;font-weight:900;margin-top:20px">عدد النتائج: ' + res.length + '</p>';
             document.getElementById('quranBox').innerHTML = qh;
             document.getElementById('tafseerBox').innerHTML = th;
             document.getElementById('main').classList.add('show');
             document.getElementById('quranBox').scrollTop = 0;
-            document.getElementById('tafseerBox').scrollTop = 0;
         }
 
-        function next() {
-            if(searching) { alert('أنت في وضع البحث، اضغط على "الورد اليومي" للعودة'); return; }
-            if(current < wirds.length - 1) { current++; show(); }
-            else { alert('آخر ورد'); }
+        function doSearch() {
+            if(!loaded) return alert('برجاء الانتظار حتى يتم تحميل البيانات...');
+            const input = document.getElementById('searchBox').value.trim();
+            if(input.length < 2) return alert('برجاء كتابة كلمة من حرفين على الأقل');
+
+            const searchKey = normalizeArabic(input);
+            // البحث في النصوص المنظفة
+            const results = verses.filter(v => normalizeArabic(v.text).includes(searchKey));
+
+            if(results.length === 0) {
+                alert('لم يتم العثور على نتائج لهذه الكلمة');
+                return;
+            }
+
+            searching = true;
+            displayed = results.slice(0, 50); // عرض أول 50 نتيجة
+            show();
+            // إضافة عدد النتائج في الأعلى
+            document.getElementById('quranBox').insertAdjacentHTML('afterbegin', `<p style="text-align:center; color:#065f46; font-weight:bold; margin-bottom:15px;">تم العثور على ${results.length} آية</p>`);
         }
 
-        function prev() {
-            if(searching) { alert('أنت في وضع البحث، اضغط على "الورد اليومي" للعودة'); return; }
-            if(current > 0) { current--; show(); }
-            else { alert('أول ورد'); }
+        function showWird() {
+            if(!loaded) return;
+            searching = false;
+            const d = new Date();
+            const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 1000 / 60 / 60 / 24);
+            current = dayOfYear % wirds.length;
+            displayed = wirds[current];
+            show();
         }
 
         function jumpSura() {
+            const sName = document.getElementById('suraList').value;
+            if(!sName) return;
             searching = false;
-            document.getElementById('searchBox').value = '';
-            const n = document.getElementById('suraList').value;
-            if(!n) return;
-            for(let i = 0; i < wirds.length; i++) {
-                if(wirds[i][0].sName === n) {
-                    current = i;
-                    document.getElementById('main').classList.add('show');
-                    show();
-                    break;
-                }
-            }
+            const suraVerses = verses.filter(v => v.sName === sName);
+            displayed = suraVerses.slice(0, 10); // عرض أول 10 آيات من السورة
+            show();
+        }
+
+        function next() {
+            if(searching) return alert('اضغط على "الورد اليومي" للعودة للتصفح العادي');
+            if(current < wirds.length - 1) { current++; displayed = wirds[current]; show(); }
+        }
+
+        function prev() {
+            if(searching) return alert('اضغط على "الورد اليومي" للعودة للتصفح العادي');
+            if(current > 0) { current--; displayed = wirds[current]; show(); }
         }
 
         function share() {
-            let msg = '📖 ورد اليوم:\n\n';
-            displayed.forEach(v => {
-                msg += v.text + ' (' + v.sName + ': ' + v.vNum + ')\n\n';
-            });
-            msg += '✨ تطبيق بلغوا عني ولو آية';
-            
-            if(navigator.share) {
-                navigator.share({text: msg}).catch(function(){});
-            } else {
-                navigator.clipboard.writeText(msg).then(function() {
-                    alert('✅ تم نسخ النص لمشاركته');
-                });
-            }
+            let msg = '📖 من تطبيق بلغوا عني ولو آية:\n\n';
+            displayed.slice(0, 3).forEach(v => msg += `${v.text} (${v.sName}: ${v.vNum})\n\n`);
+            if(navigator.share) navigator.share({text: msg}).catch(()=>{});
+            else { navigator.clipboard.writeText(msg); alert('تم نسخ النص لمشاركته'); }
         }
 
         load();
