@@ -346,39 +346,51 @@
             document.getElementById('tafseerBox').innerHTML = th;
         }
 
+        // --- تعديل وظيفة البحث هنا ---
         function doSearch() {
             if(!loaded) { alert('انتظر التحميل'); return; }
             const txt = document.getElementById('searchBox').value.trim();
             if(txt.length < 2) { alert('اكتب حرفين على الأقل'); return; }
             
-            const res = verses.filter(v => v.text.indexOf(txt) !== -1);
-            if(res.length === 0) { alert('لا توجد نتائج'); return; }
+            const normalizeText = (t) => {
+                return t.replace(/[\u064B-\u065F\u0670]/g, "")
+                        .replace(/[أإآ]/g, "ا")
+                        .replace(/ة/g, "ه")
+                        .replace(/ى/g, "ي");
+            };
+
+            const searchKey = normalizeText(txt);
+            const res = verses.filter(v => normalizeText(v.text).indexOf(searchKey) !== -1);
+            
+            if(res.length === 0) { alert('لا توجد نتائج لهذه الكلمة'); return; }
             
             searching = true;
-            displayed = res.slice(0, 20);
+            displayed = res.slice(0, 30);
             let qh = '', th = '';
             
             displayed.forEach(v => {
-                const hl = v.text.split(txt).join('<mark style="background:#fbbf24;padding:2px">' + txt + '</mark>');
-                qh += '<div class="ayah-text">' + hl + '<span class="ayah-info">﴿' + v.sName + ': ' + v.vNum + '﴾</span></div>';
+                qh += '<div class="ayah-text">' + v.text + '<span class="ayah-info">﴿' + v.sName + ': ' + v.vNum + '﴾</span></div>';
                 const tf = tafseer.find(x => parseInt(x.number) === v.sNum && parseInt(x.aya) === v.vNum);
                 v.tafseer = tf ? tf.text : '';
                 th += '<div class="tafseer-item"><strong>' + v.sName + ' (' + v.vNum + '):</strong><br>' + v.tafseer + '</div>';
             });
             
-            qh += '<p style="text-align:center;color:#065f46;font-weight:900;margin-top:20px">النتائج: ' + res.length + '</p>';
+            qh += '<p style="text-align:center;color:#065f46;font-weight:900;margin-top:20px">عدد النتائج: ' + res.length + '</p>';
             document.getElementById('quranBox').innerHTML = qh;
             document.getElementById('tafseerBox').innerHTML = th;
+            document.getElementById('main').classList.add('show');
+            document.getElementById('quranBox').scrollTop = 0;
+            document.getElementById('tafseerBox').scrollTop = 0;
         }
 
         function next() {
-            if(searching) { alert('أنت في البحث'); return; }
+            if(searching) { alert('أنت في وضع البحث، اضغط على "الورد اليومي" للعودة'); return; }
             if(current < wirds.length - 1) { current++; show(); }
             else { alert('آخر ورد'); }
         }
 
         function prev() {
-            if(searching) { alert('أنت في البحث'); return; }
+            if(searching) { alert('أنت في وضع البحث، اضغط على "الورد اليومي" للعودة'); return; }
             if(current > 0) { current--; show(); }
             else { alert('أول ورد'); }
         }
@@ -391,6 +403,7 @@
             for(let i = 0; i < wirds.length; i++) {
                 if(wirds[i][0].sName === n) {
                     current = i;
+                    document.getElementById('main').classList.add('show');
                     show();
                     break;
                 }
@@ -408,7 +421,7 @@
                 navigator.share({text: msg}).catch(function(){});
             } else {
                 navigator.clipboard.writeText(msg).then(function() {
-                    alert('✅ تم النسخ');
+                    alert('✅ تم نسخ النص لمشاركته');
                 });
             }
         }
