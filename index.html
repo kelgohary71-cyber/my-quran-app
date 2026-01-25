@@ -95,21 +95,23 @@
     <script>
         let verses = [], tafseer = [], wirds = [], current = 0, displayed = [], loaded = false, searching = false;
 
-        // دالة تنظيف النص من التشكيل
-        function cleanText(text) {
-            return text.replace(/[\u064B-\u0652]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه");
+        // دالة حذف التشكيل والهمزات للبحث فقط
+        function cleanForSearch(text) {
+            if (!text) return "";
+            return text.replace(/[\u064B-\u0652]/g, "") // حذف التشكيل
+                       .replace(/[أإآ]/g, "ا")       // توحيد الألف
+                       .replace(/ة/g, "ه")           // توحيد التاء المربوطة
+                       .replace(/ى/g, "ي");          // توحيد الياء
         }
 
         async function load() {
             try {
-                // دعم العمل أوفلاين عبر LocalStorage
                 const cachedQ = localStorage.getItem('q_data');
                 const cachedT = localStorage.getItem('t_data');
                 let sData, tData;
 
                 if (cachedQ && cachedT) {
-                    sData = JSON.parse(cachedQ);
-                    tData = JSON.parse(cachedT);
+                    sData = JSON.parse(cachedQ); tData = JSON.parse(cachedT);
                 } else {
                     const q = await fetch('quran.json'); sData = await q.json();
                     const t = await fetch('tafseer.json'); tData = await t.json();
@@ -121,13 +123,19 @@
                 sData.forEach(s => {
                     let o = document.createElement('option'); o.value = s.name; o.textContent = s.name; sel.appendChild(o);
                     s.verses.forEach(v => {
-                        verses.push({text: v.text, sNum: s.id, sName: s.name, vNum: v.id, clean: cleanText(v.text)});
+                        verses.push({
+                            text: v.text, 
+                            sNum: s.id, 
+                            sName: s.name, 
+                            vNum: v.id, 
+                            clean: cleanForSearch(v.text)
+                        });
                     });
                 });
                 tafseer = tData;
                 makeWirds();
                 loaded = true;
-            } catch(e) { alert('خطأ: تأكد من وجود ملفات JSON'); }
+            } catch(e) { alert('تأكد من وجود ملفات JSON بجانب الكود'); }
         }
 
         function makeWirds() {
@@ -152,23 +160,25 @@
             show();
         }
 
-        function show(searchKeyword = "") {
-            if(wirds.length === 0 && !searching) return;
+        function show(keyword = "") {
             if(!searching) displayed = wirds[current];
-            
             let qh = '', th = '';
+            
             if(!searching) {
                 document.getElementById('wirdCounter').innerHTML = `الورد رقم (${current + 1}) - سورة ${displayed[0].sName}`;
             }
 
             displayed.forEach(v => {
-                let finalTxt = v.text;
-                if(searchKeyword) {
-                    // تظليل الكلمة حتى مع وجود تشكيل باستخدام Regular Expression ذكي
-                    const regex = new RegExp(`(${searchKeyword.split('').join('[\\u064B-\\u0652]*')})`, 'gi');
-                    finalTxt = v.text.replace(regex, '<mark>$1</mark>');
+                let txt = v.text;
+                if(keyword) {
+                    // بناء RegExp يتجاهل التشكيل بين الحروف
+                    const pattern = keyword.split('').map(char => 
+                        cleanForSearch(char) + "[\\u064B-\\u0652]*"
+                    ).join('');
+                    const regex = new RegExp(`(${pattern})`, 'gi');
+                    txt = txt.replace(regex, '<mark>$1</mark>');
                 }
-                qh += `<div class="ayah-text">${finalTxt}<span class="ayah-info">﴿${v.sName}: ${v.vNum}﴾</span></div>`;
+                qh += `<div class="ayah-text">${txt}<span class="ayah-info">﴿${v.sName}: ${v.vNum}﴾</span></div>`;
                 const tf = tafseer.find(x => parseInt(x.number) === v.sNum && parseInt(x.aya) === v.vNum);
                 th += `<div class="tafseer-item"><strong>${v.sName} (${v.vNum}):</strong><br>${tf ? tf.text : ''}</div>`;
             });
@@ -179,8 +189,8 @@
         function doSearch() {
             const val = document.getElementById('searchBox').value.trim();
             if(val.length < 2) return;
-            const cleanedVal = cleanText(val);
-            const res = verses.filter(v => v.clean.includes(cleanedVal));
+            const cVal = cleanForSearch(val);
+            const res = verses.filter(v => v.clean.includes(cVal));
             if(res.length === 0) { alert('لم يتم العثور على نتائج'); return; }
             
             searching = true;
