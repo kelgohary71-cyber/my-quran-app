@@ -269,7 +269,6 @@
     </div>
 
     <script>
-        // التحميل الفوري للبيانات
         let verses = [];
         let tafseer = [];
         let wirds = [];
@@ -278,15 +277,15 @@
         let loaded = false;
         let searching = false;
 
-        // دالة بحث متطورة بدون تشكيل وتوحيد الحروف
         function removeTashkeel(text) {
+            if (!text) return '';
             return text.replace(/[\u064B-\u065F\u0670]/g, '')
                        .replace(/[أإآ]/g, 'ا')
                        .replace(/ة/g, 'ه');
         }
 
         async function load() {
-            // محاولة التحميل من الـ Cache فوراً لسرعة التطبيق
+            // محاولة جلب البيانات من الذاكرة أولاً للسرعة
             const cached = localStorage.getItem('quranCache');
             const cachedTafseer = localStorage.getItem('tafseerCache');
             
@@ -296,10 +295,10 @@
                 fillSelect();
                 makeWirds();
                 loaded = true;
-                // تحديث البيانات في الخلفية بدون تعطيل المستخدم
             }
             
             try {
+                // جلب البيانات من الملفات مع التأكد من المسار
                 const qResponse = await fetch('quran.json');
                 const suras = await qResponse.json();
                 
@@ -329,7 +328,7 @@
                     loaded = true;
                 }
             } catch(e) {
-                if(!loaded) alert('❌ تأكد من وجود ملفات البيانات بجانب التطبيق');
+                console.log("Loading error: ", e);
             }
         }
         
@@ -384,6 +383,7 @@
         }
 
         function updateWirdDisplay() {
+            if(!wirds[current]) return;
             const wirdNum = current + 1;
             const start = wirds[current][0];
             const end = wirds[current][wirds[current].length - 1];
@@ -414,14 +414,14 @@
             if(res.length === 0) { alert('لا توجد نتائج'); return; }
             
             searching = true;
-            displayed = res.slice(0, 50); // عرض حتى 50 نتيجة
+            displayed = res.slice(0, 50); 
             let qh = '', th = '';
             displayed.forEach(v => {
                 qh += '<div class="ayah-text">' + v.text + '<span class="ayah-info">﴿' + v.sName + ': ' + v.vNum + '﴾</span></div>';
                 const tf = tafseer.find(x => parseInt(x.number) === v.sNum && parseInt(x.aya) === v.vNum);
                 th += '<div class="tafseer-item"><strong>' + v.sName + ' (' + v.vNum + '):</strong><br>' + (tf ? tf.text : '') + '</div>';
             });
-            qh += `<p style="text-align:center;padding:10px">نتائج البحث: ${res.length}</p>`;
+            qh += `<p style="text-align:center;padding:10px;color:#065f46;font-weight:900">نتائج البحث: ${res.length}</p>`;
             document.getElementById('quranBox').innerHTML = qh;
             document.getElementById('tafseerBox').innerHTML = th;
             document.getElementById('wirdInfo').classList.remove('show');
