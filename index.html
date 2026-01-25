@@ -3,33 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بلغوا عني ولو آية - النسخة النهائية</title>
+    <title>بلغوا عني ولو آية - الإصدار الذهبي</title>
     <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@700&family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #065f46; --accent: #fbbf24; --bg: #f0fdf4; }
+        :root { --primary: #065f46; --accent: #fbbf24; --bg: #f8fafc; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: #1f2937; line-height: 1.6; }
-        .header { background: var(--primary); color: var(--accent); padding: 20px; text-align: center; border-bottom: 5px solid var(--accent); sticky; top: 0; z-index: 1000; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .container { max-width: 900px; margin: 0 auto; padding: 15px; }
-        .card { background: white; border-radius: 15px; padding: 20px; border: 3px solid var(--primary); margin-bottom: 20px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .btn-main { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 15px; border-radius: 12px; font-weight: 900; width: 100%; font-size: 20px; border: 3px solid var(--accent); cursor: pointer; margin-bottom: 15px; transition: 0.3s; }
-        .btn-main:active { transform: scale(0.98); }
-        .search-area { background: var(--primary); padding: 20px; border-radius: 15px; border: 3px solid var(--accent); }
-        select, input { width: 100%; padding: 14px; border-radius: 10px; border: 2px solid var(--accent); font-family: 'Cairo'; font-weight: 700; font-size: 16px; margin-bottom: 12px; outline: none; }
-        .search-row { display: flex; gap: 10px; }
-        .btn-search { background: var(--accent); color: var(--primary); border: none; padding: 0 25px; border-radius: 10px; cursor: pointer; font-weight: 900; font-size: 18px; }
-        .result-title { background: var(--accent); color: var(--primary); padding: 10px; border-radius: 8px; text-align: center; font-weight: 900; margin: 15px 0; }
-        .display-box { height: 500px; overflow-y: auto; padding: 15px; background: #fff; border: 3px solid #ddd; border-radius: 10px; scroll-behavior: smooth; }
-        .ayah-card { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px dashed #eee; text-align: center; }
-        .ayah-text { font-family: 'Scheherazade New', serif; font-size: 32px; line-height: 2.2; color: #111827; }
-        .ayah-meta { color: var(--primary); font-weight: 900; font-size: 16px; margin-top: 10px; display: block; }
-        .tafseer-box { background: #eff6ff; border-right: 5px solid #3b82f6; padding: 15px; margin-top: 10px; font-size: 18px; text-align: justify; border-radius: 5px; }
-        mark { background: #fbbf24; color: black; padding: 0 2px; border-radius: 3px; font-weight: bold; }
-        .nav-btns { display: flex; gap: 15px; margin-top: 20px; }
-        .nav-btn { flex: 1; padding: 15px; border: none; border-radius: 12px; font-size: 18px; font-weight: 900; color: white; cursor: pointer; }
-        .btn-prev { background: #f97316; }
+        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: #334155; }
+        .header { background: var(--primary); color: var(--accent); padding: 15px; text-align: center; border-bottom: 4px solid var(--accent); position: sticky; top: 0; z-index: 1000; }
+        .container { max-width: 800px; margin: 0 auto; padding: 15px; }
+        .search-card { background: var(--primary); padding: 20px; border-radius: 15px; border: 2px solid var(--accent); margin-bottom: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        select, input { width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--accent); font-family: 'Cairo'; font-weight: bold; margin-bottom: 10px; font-size: 16px; }
+        .search-btn { background: var(--accent); color: var(--primary); border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: 900; font-size: 18px; cursor: pointer; }
+        .wird-btn { background: #10b981; color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: 900; font-size: 20px; cursor: pointer; margin-bottom: 15px; border: 2px solid var(--accent); }
+        .display-area { background: white; border-radius: 15px; border: 2px solid #e2e8f0; min-height: 400px; padding: 20px; }
+        .ayah-block { border-bottom: 2px dashed #f1f5f9; padding-bottom: 20px; margin-bottom: 20px; text-align: center; }
+        .ayah-text { font-family: 'Scheherazade New', serif; font-size: 32px; line-height: 2.3; color: #0f172a; }
+        .ayah-info { color: var(--primary); font-weight: bold; font-size: 14px; margin-top: 10px; display: block; }
+        .tafseer-text { background: #f1f5f9; padding: 15px; border-radius: 8px; margin-top: 10px; font-size: 16px; text-align: right; border-right: 4px solid #3b82f6; }
+        mark { background: #fbbf24; color: #000; padding: 0 2px; border-radius: 3px; }
+        .nav-controls { display: flex; gap: 10px; margin-top: 15px; }
+        .nav-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; color: white; font-weight: 900; cursor: pointer; }
         .btn-next { background: #8b5cf6; }
-        .footer { text-align: center; padding: 20px; font-weight: 900; color: var(--primary); }
+        .btn-prev { background: #f97316; }
     </style>
 </head>
 <body>
@@ -37,145 +32,122 @@
 <div class="header"><h1>بلغوا عني ولو آية</h1></div>
 
 <div class="container">
-    <button class="btn-main" onclick="loadWird()">📖 عرض الورد اليومي (20 آية)</button>
+    <button class="wird-btn" onclick="showTodayWird()">📖 عرض الورد اليومي</button>
 
-    <div class="search-area">
-        <select id="suraSelector" onchange="jumpToSura()">
-            <option value="">-- ابحث في كل السور --</option>
-        </select>
-        <div class="search-row">
-            <input type="text" id="searchInp" placeholder="اكتب الكلمة هنا (بدون تشكيل)...">
-            <button class="btn-search" onclick="executeSearch()">بحث</button>
-        </div>
+    <div class="search-card">
+        <select id="suraFilter"><option value="ALL">🔍 كل السور</option></select>
+        <input type="text" id="searchInput" placeholder="اكتب الكلمة هنا (مثال: أحد)">
+        <button class="search-btn" onclick="runSearch()">بـحـث 🔍</button>
     </div>
 
-    <div id="contentSection" style="display:none;">
-        <div id="statusLabel" class="result-title"></div>
-        <div class="display-box" id="mainDisplay"></div>
-        <div class="nav-btns" id="navGroup">
-            <button class="nav-btn btn-prev" onclick="changeWird(-1)">السابق</button>
-            <button class="nav-btn btn-next" onclick="changeWird(1)">التالي</button>
-        </div>
+    <div id="resultStatus" style="text-align:center; font-weight:900; margin-bottom:10px; color:#065f46;"></div>
+    
+    <div class="display-area" id="mainBox">
+        <div style="text-align:center; padding-top:100px; color:#94a3b8;">اضغط على الورد اليومي أو ابحث عن آية</div>
     </div>
 
-    <div class="footer">تصميم وتنفيذ: أ / خالد الجوهري</div>
+    <div class="nav-controls" id="navBar" style="display:none;">
+        <button class="nav-btn btn-prev" onclick="moveWird(-1)">السابق</button>
+        <button class="nav-btn btn-next" onclick="moveWird(1)">التالي</button>
+    </div>
 </div>
 
 <script>
-let allVerses = [], allTafseer = [], wirdsList = [], currentIdx = 0;
+let dataQuran = [], dataTafseer = [], wirds = [], currentWirdIdx = 0;
 
-// تنظيف النص للبحث
-function normalize(txt) {
-    if(!txt) return "";
-    return txt.replace(/[\u064B-\u0652]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
-}
+// دالة تنظيف النص النهائية
+const clean = (t) => t ? t.replace(/[\u064B-\u0652]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").trim() : "";
 
-async function startApp() {
+async function init() {
     try {
-        const [qRes, tRes] = await Promise.all([fetch('quran.json'), fetch('tafseer.json')]);
-        const qData = await qRes.json();
-        allTafseer = await tRes.json();
+        const [q, t] = await Promise.all([fetch('quran.json'), fetch('tafseer.json')]);
+        const qJson = await q.json();
+        dataTafseer = await t.json();
 
-        const sel = document.getElementById('suraSelector');
-        qData.forEach(s => {
-            let opt = new Array(1); 
-            sel.options.add(new Option(s.name, s.name));
-            s.verses.forEach(v => {
-                allVerses.push({
+        const sel = document.getElementById('suraFilter');
+        qJson.forEach(sura => {
+            sel.options.add(new Option(sura.name, sura.name));
+            sura.verses.forEach(v => {
+                dataQuran.push({
                     text: v.text,
-                    clean: normalize(v.text),
-                    sName: s.name,
-                    sId: s.id,
+                    clean: clean(v.text),
+                    sName: sura.name,
+                    sId: sura.id,
                     vId: v.id
                 });
             });
         });
 
-        // إنشاء الأوراد (20 آية + بداية سورة)
-        let temp = [], lastSura = 1;
-        allVerses.forEach((v, i) => {
-            if(v.sId !== lastSura) {
-                if(temp.length > 0) splitToWirds(temp);
-                temp = []; lastSura = v.sId;
-            }
+        // تقسيم الأوراد (20 آية)
+        let temp = [], lastId = 1;
+        dataQuran.forEach((v, i) => {
+            if(v.sId !== lastId) { if(temp.length > 0) chunk(temp); temp = []; lastId = v.sId; }
             temp.push(v);
-            if(i === allVerses.length - 1) splitToWirds(temp);
+            if(i === dataQuran.length -1) chunk(temp);
         });
-        console.log("App Ready");
-    } catch(e) { alert("خطأ: تأكد من ملفات JSON"); }
+    } catch(e) { alert("تأكد من وجود ملفات quran.json و tafseer.json بجانب الصفحة"); }
 }
 
-function splitToWirds(arr) {
-    for(let i=0; i<arr.length; i+=20) wirdsList.push(arr.slice(i, i+20));
-}
+function chunk(arr) { for(let i=0; i<arr.length; i+=20) wirds.push(arr.slice(i, i+20)); }
 
-function render(data, highlight = "") {
-    const box = document.getElementById('mainDisplay');
-    document.getElementById('contentSection').style.display = 'block';
+function draw(list, keyword = "") {
+    const box = document.getElementById('mainBox');
     box.innerHTML = '';
-    
-    data.forEach(v => {
-        let txt = v.text;
-        if(highlight) {
-            const pattern = highlight.split('').map(c => normalize(c) + "[\\u064B-\\u0652]*").join('');
-            txt = txt.replace(new RegExp(`(${pattern})`, 'gi'), '<mark>$1</mark>');
+    list.forEach(v => {
+        let displayTxt = v.text;
+        if(keyword) {
+            const pattern = keyword.split('').map(char => clean(char) + "[\\u064B-\\u0652]*").join('');
+            displayTxt = v.text.replace(new RegExp(`(${pattern})`, 'gi'), '<mark>$1</mark>');
         }
-        
-        const tf = allTafseer.find(t => t.number == v.sId && t.aya == v.vId);
+        const tf = dataTafseer.find(t => t.number == v.sId && t.aya == v.vId);
         box.innerHTML += `
-            <div class="ayah-card">
-                <div class="ayah-text">${txt}</div>
-                <span class="ayah-meta">﴿${v.sName}: ${v.vId}﴾</span>
-                <div class="tafseer-box"><b>التفسير:</b> ${tf ? tf.text : 'غير متوفر'}</div>
+            <div class="ayah-block">
+                <div class="ayah-text">${displayTxt}</div>
+                <span class="ayah-info">﴿${v.sName} : ${v.vId}﴾</span>
+                <div class="tafseer-text"><b>التفسير:</b> ${tf ? tf.text : 'جاري التحميل...'}</div>
             </div>`;
     });
-    box.scrollTop = 0;
+    window.scrollTo(0, document.getElementById('resultStatus').offsetTop - 100);
 }
 
-function loadWird() {
-    const day = Math.floor(new Date().getTime() / 86400000);
-    currentIdx = day % wirdsList.length;
-    document.getElementById('navGroup').style.display = 'flex';
-    document.getElementById('statusLabel').innerText = `الورد اليومي: ${wirdsList[currentIdx][0].sName}`;
-    render(wirdsList[currentIdx]);
-}
+function runSearch() {
+    const query = clean(document.getElementById('searchInput').value);
+    const sura = document.getElementById('suraFilter').value;
+    if(query.length < 2) return;
 
-function jumpToSura() {
-    const sName = document.getElementById('suraSelector').value;
-    if(!sName) return;
-    currentIdx = wirdsList.findIndex(w => w[0].sName === sName);
-    document.getElementById('navGroup').style.display = 'flex';
-    document.getElementById('statusLabel').innerText = `سورة ${sName}`;
-    render(wirdsList[currentIdx]);
-}
-
-function executeSearch() {
-    const query = document.getElementById('searchInp').value.trim();
-    const targetSura = document.getElementById('suraSelector').value;
-    if(query.length < 2) return alert("اكتب كلمة صحيحة");
-
-    const cleanQ = normalize(query);
-    let results = allVerses.filter(v => {
-        const inSura = targetSura ? v.sName === targetSura : true;
-        return inSura && v.clean.includes(cleanQ);
+    const results = dataQuran.filter(v => {
+        const matchSura = (sura === "ALL") || (v.sName === sura);
+        return matchSura && v.clean.includes(query);
     });
 
-    if(results.length === 0) return alert("لا توجد نتائج في " + (targetSura || "المصحف"));
+    if(results.length === 0) { alert("لم يتم العثور على نتائج"); return; }
 
-    document.getElementById('navGroup').style.display = 'none';
-    document.getElementById('statusLabel').innerText = `نتائج البحث عن "${query}" : ${results.length} آية`;
-    render(results, query);
+    document.getElementById('navBar').style.display = 'none';
+    document.getElementById('resultStatus').innerText = `نتائج البحث عن: ${document.getElementById('searchInput').value}`;
+    draw(results, document.getElementById('searchInput').value);
 }
 
-function changeWird(dir) {
-    currentIdx += dir;
-    if(currentIdx < 0) currentIdx = wirdsList.length - 1;
-    if(currentIdx >= wirdsList.length) currentIdx = 0;
-    document.getElementById('statusLabel').innerText = `الورد: ${wirdsList[currentIdx][0].sName}`;
-    render(wirdsList[currentIdx]);
+function showTodayWird() {
+    const day = Math.floor(new Date().getTime() / 86400000);
+    currentWirdIdx = day % wirds.length;
+    document.getElementById('navBar').style.display = 'flex';
+    updateWirdView();
 }
 
-startApp();
+function updateWirdView() {
+    const currentWird = wirds[currentWirdIdx];
+    document.getElementById('resultStatus').innerText = `الورد اليومي: ${currentWird[0].sName}`;
+    draw(currentWird);
+}
+
+function moveWird(step) {
+    currentWirdIdx += step;
+    if(currentWirdIdx < 0) currentWirdIdx = wirds.length -1;
+    if(currentWirdIdx >= wirds.length) currentWirdIdx = 0;
+    updateWirdView();
+}
+
+init();
 </script>
 </body>
 </html>
