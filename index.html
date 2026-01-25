@@ -11,10 +11,10 @@
         .header { background: #065f46; color: #fbbf24; padding: 15px; text-align: center; border-bottom: 4px solid #fbbf24; position: sticky; top: 0; z-index: 100; }
         .container { max-width: 800px; margin: 0 auto; padding: 10px; }
         .btn-wird { background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 18px; border-radius: 15px; font-weight: 900; width: 100%; font-size: 22px; margin-bottom: 15px; border: 3px solid #fbbf24; cursor: pointer; }
-        .controls { background: #047857; padding: 18px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #fbbf24; display: block; }
+        .controls { background: #047857; padding: 18px; border-radius: 15px; margin-bottom: 20px; border: 3px solid #fbbf24; }
         select, input { width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #fbbf24; font-family: 'Cairo'; font-weight: 900; font-size: 16px; margin-bottom: 10px; }
         .search-row { display: flex; gap: 8px; }
-        .btn-search { background: #fbbf24; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+        .btn-search { background: #fbbf24; border: none; padding: 12px 20px; border-radius: 10px; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; font-weight: bold; }
         .content { display: none; }
         .content.show { display: block; }
         .section-title { font-size: 17px; font-weight: 900; padding: 10px 18px; border-radius: 15px 15px 0 0; display: inline-block; color: white; }
@@ -31,7 +31,7 @@
         .nav-btn { flex: 1; padding: 18px; border: none; border-radius: 15px; font-size: 20px; font-weight: 900; color: white; cursor: pointer; }
         .btn-prev { background: #FF6B35; }
         .btn-next { background: #8B5CF6; }
-        .footer { background: #047857; color: white; text-align: center; padding: 15px; border-radius: 10px; margin-top: 20px; border: 2px solid #fbbf24; }
+        .footer { background: #047857; color: white; text-align: center; padding: 15px; border-radius: 10px; margin-top: 20px; border: 2px solid #fbbf24; font-weight: 900; }
     </style>
 </head>
 <body>
@@ -42,10 +42,10 @@
         <button class="btn-wird" onclick="showWird()">📖 الورد اليومي (20 آية)</button>
 
         <div class="controls">
-            <select id="suraList"><option value="">📖 ابحث في المصحف كاملاً</option></select>
+            <select id="suraList"><option value="">🔍 ابحث في المصحف كاملاً</option></select>
             <div class="search-row">
-                <input type="text" id="searchBox" placeholder="اكتب الكلمة هنا (مثلاً: أحد)...">
-                <button class="btn-search" onclick="doSearch()">🔍</button>
+                <input type="text" id="searchBox" placeholder="اكتب الكلمة للبحث...">
+                <button class="btn-search" onclick="doSearch()">بحث 🔍</button>
             </div>
         </div>
 
@@ -62,7 +62,7 @@
         </div>
 
         <div class="footer">
-            <p>تصميم: أ / خالد الجوهري</p>
+            <p>تصميم وتنفيذ: أ / خالد الجوهري</p>
         </div>
     </div>
 
@@ -70,6 +70,7 @@
         let verses = [], tafseer = [], wirds = [], current = 0, displayed = [], loaded = false, searching = false;
 
         function cleanText(txt) {
+            if(!txt) return "";
             return txt.replace(/[\u064B-\u0652]/g, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
         }
 
@@ -86,16 +87,15 @@
                         verses.push({ text: v.text, clean: cleanText(v.text), sNum: s.id, sName: s.name, vNum: v.id });
                     });
                 });
-                
                 makeWirds();
                 loaded = true;
-            } catch(e) { alert("تأكد من وجود ملفات البيانات JSON"); }
+            } catch(e) { alert("خطأ في تحميل ملفات JSON"); }
         }
 
         function makeWirds() {
-            wirds = []; let sId = 1; let temp = [];
+            wirds = []; let currentSuraId = 1; let temp = [];
             verses.forEach((v, i) => {
-                if(v.sNum !== sId) { if(temp.length > 0) split(temp); sId = v.sNum; temp = []; }
+                if(v.sNum !== currentSuraId) { if(temp.length > 0) split(temp); currentSuraId = v.sNum; temp = []; }
                 temp.push(v);
                 if(i === verses.length - 1) split(temp);
             });
@@ -105,50 +105,57 @@
         function showWird() {
             searching = false;
             document.getElementById('navContainer').style.display = 'flex';
-            const days = Math.floor(new Date().getTime() / (86400000));
+            const days = Math.floor(new Date().getTime() / 86400000);
             current = days % wirds.length;
             render();
         }
 
         function doSearch() {
             const query = document.getElementById('searchBox').value.trim();
-            const selectedSura = document.getElementById('suraList').value;
-            if(query.length < 2) return;
+            const selectedSuraName = document.getElementById('suraList').value;
+            if(query.length < 2) { alert("اكتب كلمة من حرفين على الأقل"); return; }
 
             const cQuery = cleanText(query);
-            // البحث مع فلترة السورة إذا كانت مختارة
-            let pool = selectedSura ? verses.filter(v => v.sName === selectedSura) : verses;
-            const results = pool.filter(v => v.clean.includes(cQuery));
+            // الفلترة الصارمة: لو مختار سورة، ابحث فيها هي بس.
+            let results = verses.filter(v => {
+                const matchesSura = selectedSuraName ? v.sName === selectedSuraName : true;
+                const matchesText = v.clean.includes(cQuery);
+                return matchesSura && matchesText;
+            });
 
             if(results.length === 0) { alert("لا توجد نتائج في السورة المختارة"); return; }
 
             searching = true;
-            displayed = results.slice(0, 50); // عرض حتى 50 نتيجة
+            displayed = results; 
             document.getElementById('navContainer').style.display = 'none';
-            document.getElementById('wirdCounter').innerHTML = `نتائج البحث عن "${query}" : (${results.length} نتيجة)`;
+            document.getElementById('wirdCounter').innerHTML = `نتائج البحث عن "${query}" في ${selectedSuraName || 'المصحف كاملاً'}: (${results.length} نتيجة)`;
             render(query);
         }
 
-        function render(highlight = "") {
-            if(!searching) displayed = wirds[current];
+        function render(highlightKeyword = "") {
             document.getElementById('main').classList.add('show');
-            if(!searching) document.getElementById('wirdCounter').innerHTML = `الورد رقم (${current + 1}) - ${displayed[0].sName}`;
+            if(!searching) {
+                displayed = wirds[current];
+                document.getElementById('wirdCounter').innerHTML = `الورد رقم (${current + 1}) - ${displayed[0].sName}`;
+            }
 
             let qh = '', th = '';
             displayed.forEach(v => {
-                let txt = v.text;
-                if(highlight) {
-                    const pattern = highlight.split('').map(c => cleanText(c) + "[\\u064B-\u0652]*").join('');
-                    const reg = new RegExp(`(${pattern})`, 'gi');
-                    txt = txt.replace(reg, '<mark>$1</mark>');
+                let finalDisplayTxt = v.text;
+                if(highlightKeyword) {
+                    // صنع Regex يتخطى التشكيل لتظليل الكلمة بدقة
+                    const pattern = highlightKeyword.split('').map(char => cleanText(char) + "[\\u064B-\\u0652]*").join('');
+                    const regex = new RegExp(`(${pattern})`, 'gi');
+                    finalDisplayTxt = v.text.replace(regex, '<mark>$1</mark>');
                 }
-                qh += `<div class="ayah-text">${txt}<span class="ayah-info">(${v.sName}: ${v.vNum})</span></div>`;
+                qh += `<div class="ayah-text">${finalDisplayTxt}<span class="ayah-info">(${v.sName}: ${v.vNum})</span></div>`;
                 const tf = tafseer.find(x => parseInt(x.number) === v.sNum && parseInt(x.aya) === v.vNum);
                 th += `<div class="tafseer-item"><strong>${v.sName} (${v.vNum}):</strong><br>${tf?tf.text:''}</div>`;
             });
             document.getElementById('quranBox').innerHTML = qh;
             document.getElementById('tafseerBox').innerHTML = th;
             document.getElementById('quranBox').scrollTop = 0;
+            document.getElementById('tafseerBox').scrollTop = 0;
         }
 
         function next() { if(!searching && current < wirds.length - 1) { current++; render(); } }
