@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بلغوا عني ولو آية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@600;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Cairo', sans-serif; 
+            background: linear-gradient(135deg, #ecfdf5 0%, #fffbeb 50%, #ecfdf5 100%); 
+            min-height: 100vh; 
+            padding-bottom: 80px;
+            color: #1f2937;
+        }
+        
+        /* شريط الحالة الجديد */
+        #statusBar {
+            background: #fff3cd;
+            color: #856404;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            border-bottom: 1px solid #ffeeba;
+            font-size: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+        }
+
+        .header { 
+            background: linear-gradient(to left, #047857, #065f46); 
+            color: #fbbf24; 
+            padding: 15px; 
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            border-bottom: 4px solid #fbbf24;
+        }
+        .header-content { 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 12px;
+        }
+        .logo { 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 12px; 
+            border: 2px solid #fbbf24; 
+            background: white;
+            object-fit: cover;
+        }
+        .title { 
+            font-size: 20px; 
+            font-weight: 800;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .container { 
+            max-width: 800px; 
+            margin: 20px auto; 
+            padding: 0 15px;
+        }
+
+        .btn-wird {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white; 
+            border: none; 
+            padding: 20px; 
+            border-radius: 16px; 
+            font-weight: 800; 
+            width: 100%; 
+            font-size: 22px; 
+            margin-bottom: 20px;
+            font-family: 'Cairo'; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px solid #fbbf24;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-wird:active { transform: scale(0.98); }
+        
+        .wird-info {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 18px;
+            margin-bottom: 20px;
+            border: 1px solid #fbbf24;
+            display: none;
+        }
+        .wird-info.show { display: block; }
+
+        .controls {
+            background: white; 
+            padding: 20px; 
+            border-radius: 16px; 
+            margin-bottom: 25px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e5e7eb;
+            display: none;
+        }
+        .controls.show { display: block; }
+        
+        select, input { 
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 12px; 
+            border: 2px solid #d1d5db; 
+            font-family: 'Cairo'; 
+            font-weight: 700; 
+            font-size: 16px; 
+            margin-bottom: 12px;
+            background: #f9fafb;
+            outline: none;
+        }
+        select:focus, input:focus { border-color: #10b981; background: white; }
+        
+        .search-row { display: flex; gap: 10px; }
+        .search-row input { margin: 0; flex: 1; }
+        
+        .btn-search {
+            background: #fbbf24;
+            color: #78350f;
+            border: none;
+            padding: 0 20px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 22px;
+            transition: background 0.2s;
+        }
+        .btn-search:hover { background: #f59e0b; }
+
+        .content { display: none; animation: fadeIn 0.5s; }
+        .content.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .section-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .badge-quran { background: #059669; }
+        .badge-tafseer { background: #2563eb; }
+
+        .box { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 20px; 
+            height: 350px; 
+            overflow-y: auto; 
+            margin-bottom: 25px;
+            border: 1px solid #e5e7eb;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .box-quran { background: #fffdf9; border-right: 5px solid #059669; }
+        .box-tafseer { background: #f0f9ff; border-right: 5px solid #2563eb; }
+
+        .ayah-block { margin-bottom: 30px; text-align: center; border-bottom: 1px dashed #e5e7eb; padding-bottom: 20px; }
+        .ayah-block:last-child { border-bottom: none; }
+
+        .ayah-text { 
+            font-family: 'Amiri', serif; 
+            font-size: 28px; 
+            line-height: 2.2; 
+            color: #111827;
+            margin-bottom: 10px;
+        }
+        .ayah-info { 
+            display: inline-block;
+            background: #ecfdf5;
+            color: #047857; 
+            font-size: 14px; 
+            font-weight: 700; 
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-family: 'Cairo'; 
+            margin-top: 5px;
+        }
+        .tafseer-item { 
+            font-size: 16px; 
+            font-weight: 600; 
+            line-height: 1.8;
+            margin-bottom: 15px; 
+            color: #374151;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #bfdbfe;
+        }
+
+        .btn-share {
+            background: #3b82f6; 
+            color: white; 
+            border: none; 
+            padding: 16px; 
+            border-radius: 14px; 
+            font-weight: 700; 
+            width: 100%; 
+            font-size: 18px; 
+            margin-bottom: 20px;
+            cursor: pointer;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            font-family: 'Cairo';
+        }
+
+        .nav-btns { display: flex; gap: 15px; margin: 10px 0; }
+        .nav-btn { 
+            flex: 1; 
+            padding: 15px; 
+            border: none; 
+            border-radius: 14px; 
+            font-size: 18px; 
+            font-weight: 700; 
+            color: white; 
+            font-family: 'Cairo';
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn-prev { background: #f97316; }
+        .btn-next { background: #8b5cf6; }
+
+        .sadaqa { 
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); 
+            border: 2px solid #fbbf24; 
+            border-radius: 16px; 
+            padding: 20px; 
+            text-align: center; 
+            color: white; 
+            margin-top: 30px; 
+            font-size: 16px; 
+            font-weight: 700;
+            line-height: 1.6;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .footer { 
+            text-align: center; 
+            color: #065f46; 
+            padding: 20px;
+            font-weight: 700; 
+            font-size: 14px;
+        }
+
+        #loadingOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.98);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="loadingOverlay">
+        <div style="font-size: 50px; margin-bottom: 20px; animation: bounce 1s infinite;">📖</div>
+        <div style="color: #047857; font-size: 20px; font-weight: 800;">جاري تحميل القرآن الكريم...</div>
+        <div style="color: #666; font-size: 14px; margin-top: 10px;">يرجى الانتظار</div>
+    </div>
+    <style>@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }</style>
+
+    <!-- شريط الحالة الجديد -->
+    <div id="statusBar">⏳ جاري تهيئة التطبيق...</div>
+
+    <div class="header">
+        <div class="header-content">
+            <img src="https://kelgohary71-cyber.github.io/my-quran-app/logo.png" class="logo" alt="logo" onerror="this.style.display='none'">
+            <div class="title">بلغوا عني ولو آية</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <button class="btn-wird" onclick="showWird()">✨ عرض ورد اليوم</button>
+        
+        <div class="wird-info" id="wirdInfo"></div>
+
+        <div class="controls" id="ctrl">
+            <select id="suraList" onchange="jumpSura()">
+                <option value="">📖 اختر السورة</option>
+            </select>
+            <div class="search-row">
+                <input type="text" id="searchBox" placeholder="اكتب كلمة للبحث...">
+                <button class="btn-search" onclick="doSearch()">🔍</button>
+            </div>
+        </div>
+
+        <div class="content" id="main">
+            <div class="section-header">
+                <span class="section-badge badge-quran">الآيات</span>
+            </div>
+            <div class="box box-quran" id="quranBox"></div>
+
+            <div class="section-header">
+                <span class="section-badge badge-tafseer">التفسير الميسر</span>
+            </div>
+            <div class="box box-tafseer" id="tafseerBox"></div>
+
+            <div class="nav-btns">
+                <button class="nav-btn btn-prev" onclick="prev()">السابق</button>
+                <button class="nav-btn btn-next" onclick="next()">التالي</button>
+            </div>
+
+            <button class="btn-share" onclick="share()">
+                <span>مشاركة الورد</span>
+                <span>🔗</span>
+            </button>
+        </div>
+
+        <div class="sadaqa">
+            صدقة جارية عني وعن والديّا وزوجتي وأولادي
+            <br>
+            <span style="font-size: 0.9em; opacity: 0.9">اللهم تقبل منا إنك أنت السميع العليم</span>
+        </div>
+        
+        <div class="footer">
+            <div>تصميم وتنفيذ: أ / خالد الجوهري</div>
+            <div style="margin-top:5px; color:#666">جميع الحقوق محفوظة © 2025</div>
+        </div>
+    </div>
+
+    <script>
+        let verses = [];
+        let tafseer = [];
+        let wirds = [];
+        let current = 0;
+        let displayed = [];
+        let loaded = false;
+        let searching = false;
+        const VERSES_PER_PAGE = 10;
+
+        const URLS = {
+            quran: 'https://kelgohary71-cyber.github.io/my-quran-app/quran.json',
+            tafseer: 'https://kelgohary71-cyber.github.io/my-quran-app/tafseer.json'
+        };
+
+        function updateStatus(msg, color = '#fff3cd') {
+            const bar = document.getElementById('statusBar');
+            bar.innerText = msg;
+            bar.style.background = color;
+            console.log(msg);
+        }
+
+        function normalizeText(text) {
+            if (!text) return "";
+            text = text.replace(/[\u064B-\u065F\u0670]/g, ''); 
+            text = text.replace(/(آ|إ|أ)/g, 'ا'); 
+            text = text.replace(/ة/g, 'ه'); 
+            text = text.replace(/ى/g, 'ي'); 
+            return text;
+        }
+
+        async function load() {
+            // تنظيف الذاكرة تماماً لحل المشكلة
+            try {
+                localStorage.clear();
+                updateStatus("🧹 تم تنظيف الذاكرة الممتلئة...");
+            } catch(e) {}
+
+            try {
+                updateStatus("📡 جاري الاتصال بالخادم...");
+                
+                const [resQ, resT] = await Promise.all([
+                    fetch(URLS.quran),
+                    fetch(URLS.tafseer)
+                ]);
+
+                if (!resQ.ok || !resT.ok) throw new Error('فشل تحميل الملفات');
+
+                updateStatus("📦 جاري معالجة البيانات...");
+                const jsonQ = await resQ.json();
+                const jsonT = await resT.json();
+
+                processData(jsonQ, jsonT);
+
+            } catch (e) {
+                console.error(e);
+                updateStatus("❌ حدث خطأ: " + e.message, '#f8d7da');
+                document.getElementById('loadingOverlay').innerHTML = 
+                    `<div style="text-align:center;color:red">فشل التحميل!<br>تأكد من الإنترنت<br>${e.message}</div>`;
+            }
+        }
+
+        function processData(qData, tData) {
+            try {
+                // معالجة هياكل البيانات المختلفة
+                const qList = qData.data?.surahs || qData.surahs || qData;
+                const tList = tData.data?.surahs || tData.surahs || tData;
+
+                if (!Array.isArray(qList)) {
+                    // محاولة أخيرة إذا كانت البيانات مصفوفة مباشرة
+                    if(Array.isArray(qData)) {
+                         // منطق التعامل مع المصفوفة المباشرة إذا لزم الأمر
+                    } else {
+                        throw new Error("تنسيق ملف القرآن غير معروف");
+                    }
+                }
+
+                verses = [];
+                // التأكد من أن qList مصفوفة
+                (Array.isArray(qList) ? qList : []).forEach(s => {
+                    s.ayahs?.forEach(a => {
+                        verses.push({
+                            text: a.text,
+                            sNum: s.number,
+                            sName: s.name,
+                            vNum: a.numberInSurah,
+                            globalNum: a.number
+                        });
+                    });
+                });
+
+                tafseer = [];
+                (Array.isArray(tList) ? tList : []).forEach(s => {
+                    s.ayahs?.forEach(a => {
+                        tafseer.push({
+                            text: a.text,
+                            sNum: s.number,
+                            vNum: a.numberInSurah
+                        });
+                    });
+                });
+
+                if (verses.length === 0) {
+                    throw new Error("لم يتم العثور على آيات!");
+                }
+
+                fillSelect();
+                makeWirds();
+                
+                loaded = true;
+                updateStatus("✅ التطبيق جاهز! اضغط على ورد اليوم", '#d1e7dd');
+                
+                // إخفاء شاشة التحميل
+                const overlay = document.getElementById('loadingOverlay');
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.remove(), 500);
+
+            } catch (err) {
+                console.error(err);
+                updateStatus("❌ خطأ في المعالجة: " + err.message, '#f8d7da');
+            }
+        }
+
+        function fillSelect() {
+            const sel = document.getElementById('suraList');
+            const uniqueSurahs = [...new Set(verses.map(v => v.sName))];
+            uniqueSurahs.forEach(name => {
+                let o = document.createElement('option');
+                o.value = name;
+                o.textContent = name;
+                sel.appendChild(o);
+            });
+        }
+
+        function makeWirds() {
+            wirds = [];
+            for (let i = 0; i < verses.length; i += VERSES_PER_PAGE) {
+                wirds.push(verses.slice(i, i + VERSES_PER_PAGE));
+            }
+        }
+
+        function showWird() {
+            if(!loaded) {
+                alert("انتظر قليلاً، جاري تحميل البيانات...");
+                return;
+            }
+            
+            if (!wirds || wirds.length === 0) {
+                alert("يوجد مشكلة في البيانات، حاول تحديث الصفحة");
+                return;
+            }
+
+            searching = false;
+            document.getElementById('searchBox').value = '';
+
+            const today = new Date();
+            const startDate = new Date(2024, 0, 1);
+            const diffTime = Math.abs(today - startDate);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            
+            current = diffDays % wirds.length;
+            if (isNaN(current)) current = 0;
+
+            updateUI();
+            document.getElementById('ctrl').classList.add('show');
+            document.getElementById('main').classList.add('show');
+            
+            setTimeout(() => {
+                document.getElementById('main').scrollIntoView({behavior: 'smooth'});
+            }, 100);
+        }
+
+        function jumpSura() {
+            const name = document.getElementById('suraList').value;
+            if (!name) return;
+            
+            const idx = wirds.findIndex(w => w[0].sName === name || w[w.length-1].sName === name);
+            if (idx !== -1) {
+                current = idx;
+                searching = false;
+                document.getElementById('searchBox').value = '';
+                updateUI();
+            }
+        }
+
+        function doSearch() {
+            const txt = document.getElementById('searchBox').value;
+            if (txt.length < 2) { alert('يرجى كتابة حرفين على الأقل'); return; }
+
+            const query = normalizeText(txt);
+            const results = verses.filter(v => normalizeText(v.text).includes(query));
+
+            if (results.length === 0) {
+                alert('لا توجد نتائج مطابقة');
+                return;
+            }
+
+            searching = true;
+            displayed = results.slice(0, 50);
+            render(displayed, `🔍 نتائج البحث عن "${txt}" (${results.length} آية)`);
+            document.getElementById('wirdInfo').classList.remove('show');
+        }
+
+        function updateUI() {
+            if (!wirds[current]) current = 0;
+
+            const currentWird = wirds[current];
+            const startInfo = currentWird[0];
+            const endInfo = currentWird[currentWird.length - 1];
+            
+            const title = `📖 الورد اليومي (من ${startInfo.sName} آية ${startInfo.vNum})`;
+            
+            document.getElementById('wirdInfo').innerHTML = title;
+            document.getElementById('wirdInfo').classList.add('show');
+            
+            displayed = currentWird;
+            render(displayed);
+        }
+
+        function render(list, customTitle = null) {
+            let qHTML = '';
+            let tHTML = '';
+
+            if(customTitle) {
+                document.getElementById('wirdInfo').innerHTML = customTitle;
+                document.getElementById('wirdInfo').classList.add('show');
+            }
+
+            list.forEach(v => {
+                const taf = tafseer.find(t => t.sNum === v.sNum && t.vNum === v.vNum);
+                const tafText = taf ? taf.text : 'التفسير غير متاح حالياً';
+
+                qHTML += `
+                    <div class="ayah-block">
+                        <div class="ayah-text">${v.text}</div>
+                        <span class="ayah-info">﴿${v.sName}: ${v.vNum}﴾</span>
+                    </div>
+                `;
+
+                tHTML += `
+                    <div class="tafseer-item">
+                        <strong style="color:#047857">📍 ${v.sName} (${v.vNum}):</strong><br>
+                        ${tafText}
+                    </div>
+                `;
+            });
+
+            document.getElementById('quranBox').innerHTML = qHTML;
+            document.getElementById('tafseerBox').innerHTML = tHTML;
+            
+            document.getElementById('quranBox').scrollTop = 0;
+            document.getElementById('tafseerBox').scrollTop = 0;
+        }
+
+        function next() {
+            if (searching) return;
+            if (current < wirds.length - 1) {
+                current++;
+                updateUI();
+            } else {
+                alert('لقد ختمت القرآن! تقبل الله منك.');
+                current = 0;
+                updateUI();
+            }
+        }
+
+        function prev() {
+            if (searching) return;
+            if (current > 0) {
+                current--;
+                updateUI();
+            }
+        }
+
+        function share() {
+            let text = "";
+            if(searching) text += "🔍 *نتيجة بحث في تطبيق بلغوا عني ولو آية*\n\n";
+            else text += "✨ *ورد اليوم من تطبيق بلغوا عني ولو آية*\n\n";
+
+            const limit = Math.min(displayed.length, 3);
+            for(let i=0; i<limit; i++) {
+                text += `${displayed[i].text}\n( ${displayed[i].sName}: ${displayed[i].vNum} )\n\n`;
+            }
+            
+            if(displayed.length > 3) text += `... والمزيد في التطبيق.\n\n`;
+            text += `🌐 لقراءة الورد كاملاً: \n${window.location.href}`;
+
+            if (navigator.share) {
+                navigator.share({ title: 'بلغوا عني ولو آية', text: text }).catch(console.error);
+            } else {
+                navigator.clipboard.writeText(text).then(() => alert('تم نسخ النص! يمكنك لصقه وإرساله الآن.'));
+            }
+        }
+
+        // بدء التطبيق
+        load();
+
+    </script>
+</body>
+</html>
