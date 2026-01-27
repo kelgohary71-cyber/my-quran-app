@@ -218,9 +218,9 @@
                 <span>💬</span> واتساب
             </a>
             
-            <!-- زر الفيسبوك المعدل: ينسخ النص ثم يفتح الفيسبوك -->
-            <button onclick="shareToFacebook()" class="share-option share-fb">
-                <span>📘</span> فيسبوك (نسخ + فتح)
+            <!-- تم التعديل لاستخدام دالة ذكية -->
+            <button onclick="shareToFacebookSmart()" class="share-option share-fb">
+                <span>📘</span> فيسبوك (نشر الورد)
             </button>
             
             <button onclick="copyWirdText()" class="share-option share-copy">
@@ -253,11 +253,10 @@
             }
         ];
 
-        // تطبيع النص: إصلاح مشكلة الألف الخنجرية والعالمين
         function normalizeText(text) {
             if (!text) return "";
             return text
-                .replace(/\u0670/g, 'ا') // تحويل الألف الخنجرية لألف عادية (حل مشكلة العالمين)
+                .replace(/\u0670/g, 'ا') 
                 .replace(/([^\u0621-\u064A\u0660-\u0669\s])/g, '')
                 .replace(/(آ|إ|أ|ٱ)/g, 'ا')
                 .replace(/(ة)/g, 'ه')
@@ -292,8 +291,9 @@
 
         async function init() {
             const loading = document.getElementById('loadingMsg');
-            const cachedQ = localStorage.getItem('quran_full_v11');
-            const cachedT = localStorage.getItem('tafseer_full_v11');
+            // v13 لتنظيف الكاش
+            const cachedQ = localStorage.getItem('quran_full_v13');
+            const cachedT = localStorage.getItem('tafseer_full_v13');
 
             if (cachedQ && cachedT) {
                 try {
@@ -307,8 +307,8 @@
             try {
                 const { qJson, tJson } = await fetchWithFallback(0);
                 try {
-                    localStorage.setItem('quran_full_v11', JSON.stringify(qJson));
-                    localStorage.setItem('tafseer_full_v11', JSON.stringify(tJson));
+                    localStorage.setItem('quran_full_v13', JSON.stringify(qJson));
+                    localStorage.setItem('tafseer_full_v13', JSON.stringify(tJson));
                 } catch(e) { console.warn("الذاكرة ممتلئة"); }
 
                 processData(qJson, tJson);
@@ -436,7 +436,6 @@
             versesToRender.forEach(v => {
                 let displayText = v.text;
                 if (isSearchMode && cleanSearchTerm.length > 1) {
-                    // إصلاح الهايلايت
                     const letters = cleanSearchTerm.split('');
                     const pattern = letters.join('[\\u0600-\\u06FF]*'); 
                     const regex = new RegExp(`(${pattern})`, 'gi');
@@ -504,20 +503,34 @@
             let text = getWirdText();
             const url = window.location.href;
             
-            // الواتساب يقبل النص
             document.getElementById('waLink').href = `https://wa.me/?text=${encodeURIComponent(text)}`;
-            
             modal.classList.add('active');
         }
 
-        // دالة جديدة لمشاركة الفيسبوك (نسخ ثم فتح)
-        function shareToFacebook() {
+        // دالة المشاركة الذكية للفيسبوك
+        async function shareToFacebookSmart() {
             let text = getWirdText();
+            
+            // 1. محاولة المشاركة عبر نظام الموبايل الأصلي (قد يقبل النص)
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'بلغوا عني ولو آية',
+                        text: text
+                    });
+                    // إذا نجح، لا داعي للنسخ
+                    return;
+                } catch (err) {
+                    // إذا ألغى المستخدم أو فشل، ننتقل للخطة البديلة (نسخ ولصق)
+                }
+            }
+
+            // 2. الخطة البديلة: النسخ ثم الفتح
             navigator.clipboard.writeText(text).then(() => {
-                alert("✅ تم نسخ الورد! سيتم فتح فيسبوك الآن، قم بعمل (لصق) للنص هناك.");
+                alert("تم نسخ الورد بنجاح! \n\nبما أن فيسبوك يمنع النشر التلقائي، سيتم فتح فيسبوك الآن وعليك فقط اختيار (لصق) لنشر الورد.");
                 window.open("https://www.facebook.com", "_blank");
             }).catch(() => {
-                alert("تعذر النسخ التلقائي، يرجى النسخ يدوياً");
+                alert("تعذر النسخ، يرجى النسخ يدوياً من زر (نسخ الورد كامل)");
             });
         }
 
