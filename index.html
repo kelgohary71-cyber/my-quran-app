@@ -218,9 +218,9 @@
                 <span>💬</span> واتساب
             </a>
             
-            <!-- تم التعديل لاستخدام دالة ذكية -->
+            <!-- تم تعديل زر الفيسبوك ليعمل بالنسخ المباشر -->
             <button onclick="shareToFacebookSmart()" class="share-option share-fb">
-                <span>📘</span> فيسبوك (نشر الورد)
+                <span>📘</span> فيسبوك (نسخ وفتح)
             </button>
             
             <button onclick="copyWirdText()" class="share-option share-copy">
@@ -291,9 +291,9 @@
 
         async function init() {
             const loading = document.getElementById('loadingMsg');
-            // v13 لتنظيف الكاش
-            const cachedQ = localStorage.getItem('quran_full_v13');
-            const cachedT = localStorage.getItem('tafseer_full_v13');
+            // v14 لتنظيف الكاش
+            const cachedQ = localStorage.getItem('quran_full_v14');
+            const cachedT = localStorage.getItem('tafseer_full_v14');
 
             if (cachedQ && cachedT) {
                 try {
@@ -307,8 +307,8 @@
             try {
                 const { qJson, tJson } = await fetchWithFallback(0);
                 try {
-                    localStorage.setItem('quran_full_v13', JSON.stringify(qJson));
-                    localStorage.setItem('tafseer_full_v13', JSON.stringify(tJson));
+                    localStorage.setItem('quran_full_v14', JSON.stringify(qJson));
+                    localStorage.setItem('tafseer_full_v14', JSON.stringify(tJson));
                 } catch(e) { console.warn("الذاكرة ممتلئة"); }
 
                 processData(qJson, tJson);
@@ -501,36 +501,25 @@
         function openShareModal() {
             const modal = document.getElementById('shareModal');
             let text = getWirdText();
-            const url = window.location.href;
             
+            // الواتساب يقبل النص
             document.getElementById('waLink').href = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            
             modal.classList.add('active');
         }
 
-        // دالة المشاركة الذكية للفيسبوك
-        async function shareToFacebookSmart() {
+        // دالة المشاركة الذكية للفيسبوك (نسخ + فتح)
+        function shareToFacebookSmart() {
             let text = getWirdText();
             
-            // 1. محاولة المشاركة عبر نظام الموبايل الأصلي (قد يقبل النص)
-            if (navigator.share) {
-                try {
-                    await navigator.share({
-                        title: 'بلغوا عني ولو آية',
-                        text: text
-                    });
-                    // إذا نجح، لا داعي للنسخ
-                    return;
-                } catch (err) {
-                    // إذا ألغى المستخدم أو فشل، ننتقل للخطة البديلة (نسخ ولصق)
-                }
-            }
-
-            // 2. الخطة البديلة: النسخ ثم الفتح
+            // نسخ النص ثم فتح فيسبوك فوراً
             navigator.clipboard.writeText(text).then(() => {
-                alert("تم نسخ الورد بنجاح! \n\nبما أن فيسبوك يمنع النشر التلقائي، سيتم فتح فيسبوك الآن وعليك فقط اختيار (لصق) لنشر الورد.");
-                window.open("https://www.facebook.com", "_blank");
+                // رسالة توضيحية سريعة
+                if(confirm("✅ تم نسخ الورد!\n\nبما أن فيسبوك يمنع النشر التلقائي:\n1. سيفتح فيسبوك الآن.\n2. اضغط (لصق/Paste) في المنشور.\n\nهل تريد فتح فيسبوك الآن؟")) {
+                    window.open("https://www.facebook.com", "_blank");
+                }
             }).catch(() => {
-                alert("تعذر النسخ، يرجى النسخ يدوياً من زر (نسخ الورد كامل)");
+                alert("تعذر النسخ التلقائي، يرجى النسخ يدوياً من زر (نسخ الورد كامل)");
             });
         }
 
