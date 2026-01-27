@@ -197,7 +197,7 @@
                 <div id="tafseer-content" class="tafseer-text"></div>
             </div>
 
-            <button class="share-btn" onclick="openShareModal()">مشاركة الورد 🔗</button>
+            <button class="share-btn" onclick="openShareModal()">مشاركة الورد (آيات وتفسير) 🔗</button>
 
             <div class="nav-buttons">
                 <button class="nav-btn btn-prev" onclick="changePage(-1)">السابق</button>
@@ -212,9 +212,9 @@
     <div class="modal-overlay" id="shareModal">
         <div class="share-modal">
             <h3 style="color:#065f46; margin-bottom:20px; font-size:22px;">اختر طريقة المشاركة</h3>
-            <a href="#" id="waLink" target="_blank" class="share-option share-wa"><span>💬</span> واتساب</a>
-            <a href="#" id="fbLink" target="_blank" class="share-option share-fb"><span>📘</span> فيسبوك</a>
-            <button onclick="copyWirdText()" class="share-option share-copy" style="width:100%; border:none; cursor:pointer;"><span>📋</span> نسخ الورد</button>
+            <a href="#" id="waLink" target="_blank" class="share-option share-wa"><span>💬</span> واتساب (آيات وتفسير)</a>
+            <a href="#" id="fbLink" target="_blank" class="share-option share-fb"><span>📘</span> فيسبوك (رابط)</a>
+            <button onclick="copyWirdText()" class="share-option share-copy" style="width:100%; border:none; cursor:pointer;"><span>📋</span> نسخ الورد كامل</button>
             <button class="close-modal" onclick="document.getElementById('shareModal').classList.remove('active')">إغلاق</button>
         </div>
     </div>
@@ -228,27 +228,27 @@
         let isSearchMode = false;
         let searchResults = [];
 
-        // 🚀 نظام المصادر المتعددة (Fallback System)
-        // إذا فشل الأول، نستخدم الثاني تلقائياً
+        // المصادر (تم استخدام المصدر الرسمي والموثوق لتجنب الحظر)
         const SOURCES = [
             {
-                // المصدر الأول: API الرسمي للقرآن (موثوق وسريع جداً)
                 name: "API AlQuran.Cloud",
                 quran: 'https://api.alquran.cloud/v1/quran/quran-uthmani',
                 tafseer: 'https://api.alquran.cloud/v1/quran/ar.muyassar' 
             },
             {
-                // المصدر الثاني: رابط GitHub Raw مباشر (وليس CDN لتجنب الحظر)
                 name: "GitHub Raw",
                 quran: 'https://raw.githubusercontent.com/semarketir/quranjson/master/source/quran.json',
                 tafseer: 'https://raw.githubusercontent.com/semarketir/quranjson/master/source/tafseer.json'
             }
         ];
 
+        // 1. إصلاح البحث (العالمين): تطبيع النص بشكل قوي جداً
         function normalizeText(text) {
             if (!text) return "";
             return text
-                .replace(/([^\u0621-\u064A\u0660-\u0669\s])/g, '')
+                // استبدال الألف الخنجرية (المشكلة الرئيسية) بألف عادية
+                .replace(/\u0670/g, 'ا') 
+                .replace(/([^\u0621-\u064A\u0660-\u0669\s])/g, '') // إبقاء الحروف فقط
                 .replace(/(آ|إ|أ|ٱ)/g, 'ا')
                 .replace(/(ة)/g, 'ه')
                 .replace(/(ى)/g, 'ي')
@@ -260,40 +260,30 @@
             const status = document.getElementById('statusText');
             const source = SOURCES[urlIndex];
 
-            if (!source) {
-                throw new Error("فشلت جميع محاولات الاتصال. يرجى التحقق من الإنترنت.");
-            }
+            if (!source) throw new Error("فشلت جميع المحاولات.");
 
             try {
-                console.log(`محاولة الاتصال بالمصدر: ${source.name}`);
                 status.innerText = `جاري التحميل من المصدر ${urlIndex + 1}...`;
-
-                // تحميل متوازي
                 const [qRes, tRes] = await Promise.all([
                     fetch(source.quran),
                     fetch(source.tafseer)
                 ]);
 
-                if (!qRes.ok || !tRes.ok) throw new Error("استجابة غير صحيحة");
+                if (!qRes.ok || !tRes.ok) throw new Error("خطأ");
 
                 const qJson = await qRes.json();
                 const tJson = await tRes.json();
-
                 return { qJson, tJson };
 
             } catch (err) {
-                console.warn(`فشل المصدر ${source.name}:`, err);
-                // المحاولة مع المصدر التالي
                 return await fetchWithFallback(urlIndex + 1);
             }
         }
 
         async function init() {
             const loading = document.getElementById('loadingMsg');
-            
-            // إصدار v10: تنظيف الكاش إجبارياً للبدء من جديد
-            const cachedQ = localStorage.getItem('quran_full_v10');
-            const cachedT = localStorage.getItem('tafseer_full_v10');
+            const cachedQ = localStorage.getItem('quran_full_v11'); // v11
+            const cachedT = localStorage.getItem('tafseer_full_v11');
 
             if (cachedQ && cachedT) {
                 try {
@@ -305,21 +295,17 @@
             loading.style.display = 'block';
 
             try {
-                // استخدام دالة الجلب الذكية
                 const { qJson, tJson } = await fetchWithFallback(0);
-
                 try {
-                    localStorage.setItem('quran_full_v10', JSON.stringify(qJson));
-                    localStorage.setItem('tafseer_full_v10', JSON.stringify(tJson));
-                } catch(e) {
-                    console.warn("الذاكرة ممتلئة");
-                }
+                    localStorage.setItem('quran_full_v11', JSON.stringify(qJson));
+                    localStorage.setItem('tafseer_full_v11', JSON.stringify(tJson));
+                } catch(e) { console.warn("الذاكرة ممتلئة"); }
 
                 processData(qJson, tJson);
                 loading.style.display = 'none';
 
             } catch (e) {
-                loading.innerHTML = `<div style="color:red; font-size:16px;">${e.message}</div><button onclick="location.reload()" style="margin-top:15px; padding:10px 20px; font-weight:bold; cursor:pointer;">إعادة المحاولة</button>`;
+                loading.innerHTML = `<div style="color:red; font-size:16px;">${e.message}</div><button onclick="location.reload()" style="margin-top:15px; padding:10px;">إعادة المحاولة</button>`;
             }
         }
 
@@ -327,18 +313,9 @@
             const select = document.getElementById('suraSelect');
             allVerses = [];
             
-            // توحيد هيكل البيانات (لأن المصادر قد تختلف)
             let qList = qData.data?.surahs || qData.data || qData;
             let tList = tData.data?.surahs || tData.data || tData;
 
-            // إذا كان المصدر هو مصفوفة مسطحة (GitHub Raw) نحوله لهيكل يشبه API
-            if (Array.isArray(qList) && !qList[0].ayahs && !qList[0].verses) {
-                 // هنا نحتاج منطق خاص إذا كانت البيانات مسطحة تماماً
-                 // لكن سنفترض الهيكل القياسي للتبسيط، الكود التالي يتعامل مع الهيكل الهرمي
-            }
-
-            // 1. معالجة القرآن
-            // تحويل إلى مصفوفة إذا كان كائن
             if (!Array.isArray(qList)) qList = Object.values(qList);
 
             qList.forEach((sura, index) => {
@@ -361,16 +338,12 @@
                 });
             });
 
-            // 2. معالجة التفسير
             allTafseerText = [];
-            
-            // في حالة API AlQuran Cloud، التفسير يأتي كنص الآية في ملف التفسير
             if (!Array.isArray(tList)) tList = Object.values(tList);
             
             tList.forEach(sura => {
                  const ayahs = sura.ayahs || sura.verses || [];
                  ayahs.forEach(v => {
-                     // النص في ملف التفسير هو التفسير نفسه
                      allTafseerText.push(v.text || v.content || v.tafseer);
                  });
             });
@@ -453,6 +426,7 @@
             versesToRender.forEach(v => {
                 let displayText = v.text;
                 if (isSearchMode && cleanSearchTerm.length > 1) {
+                    // إصلاح الهايلايت ليشمل الألف الخنجرية
                     const letters = cleanSearchTerm.split('');
                     const pattern = letters.join('[\\u0600-\\u06FF]*'); 
                     const regex = new RegExp(`(${pattern})`, 'gi');
@@ -489,7 +463,6 @@
             if(!n) return;
             isSearchMode = false;
             document.getElementById('searchInput').value = '';
-            
             const idx = wirdsList.findIndex(wird => wird[0].sName === n);
             if(idx !== -1) {
                 currentWirdIndex = idx;
@@ -516,38 +489,47 @@
             } 
         }
         
+        // 2. إصلاح المشاركة: تجميع النص بالكامل
         function openShareModal() {
             const modal = document.getElementById('shareModal');
-            let text = getWirdText();
+            let text = getFullWirdText(); // جلب النص الكامل
             const url = window.location.href;
-            document.getElementById('waLink').href = `https://wa.me/?text=${encodeURIComponent(text + "\n" + url)}`;
-            document.getElementById('fbLink').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent("ورد اليوم")}`;
+
+            // فيسبوك لا يقبل النص الطويل، فقط الرابط
+            document.getElementById('fbLink').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+            
+            // واتساب يقبل النص الطويل
+            document.getElementById('waLink').href = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            
             modal.classList.add('active');
         }
 
-        function getWirdText() {
+        // دالة جديدة لتجميع الورد بالكامل (آيات + تفسير)
+        function getFullWirdText() {
             let list = isSearchMode ? searchResults : wirdsList[currentWirdIndex];
             if(!list) return "";
-            let message = "📖 ورد اليوم من تطبيق (بلغوا عني ولو آية):\n\n";
-            const limit = Math.min(list.length, 3);
-            for(let i=0; i<limit; i++) {
-                const v = list[i];
-                message += `🔹 ${v.text} (${v.sName}: ${v.vNum})\n`;
-            }
-            if(list.length > 3) message += "... (لقراءة باقي الورد افتح التطبيق)\n";
-            message += "\n✨ صدقة جارية للأستاذ خالد الجوهري";
+            
+            let message = "📖 *ورد اليوم من تطبيق بلغوا عني ولو آية*\n\n";
+            
+            // إضافة كل الآيات والتفسير
+            list.forEach(v => {
+                message += `🔹 ${v.text} {${v.sName}: ${v.vNum}}\n`;
+                message += `🔸 التفسير: ${v.tafseerText}\n\n`;
+            });
+            
+            message += "\n✨ صدقة جارية للأستاذ خالد الجوهري\n";
+            message += "📱 رابط التطبيق: " + window.location.href;
             return message;
         }
 
         function copyWirdText() {
-            let text = getWirdText() + "\n🔗 " + window.location.href;
+            let text = getFullWirdText();
             navigator.clipboard.writeText(text).then(() => {
-                alert("✅ تم النسخ بنجاح!");
+                alert("✅ تم نسخ الورد بالكامل (الآيات والتفسير)!");
                 document.getElementById('shareModal').classList.remove('active');
             }).catch(() => alert("❌ تعذر النسخ"));
         }
 
-        // بدء التطبيق
         init();
     </script>
 </body>
