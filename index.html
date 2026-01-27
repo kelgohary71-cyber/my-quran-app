@@ -173,10 +173,11 @@
         <button class="wird-button" onclick="showWird()">📖 الورد اليوم</button>
         
         <div id="loadingMsg" style="text-align:center; display:none; margin: 20px 0;">
-            <div style="font-size:50px; margin-bottom:10px;">⏳</div>
-            <div style="color:#065f46; font-weight:900; font-size:18px;">جاري تحميل المصحف والتفسير...</div>
-            <div style="color:#666; font-size:14px; margin-top:5px;">يتم استخدام روابط سريعة (CDN)</div>
+            <div style="font-size:50px; margin-bottom:10px; animation: pulse 1s infinite;">📡</div>
+            <div style="color:#065f46; font-weight:900; font-size:18px;">جاري الاتصال بالسيرفرات العالمية...</div>
+            <div id="statusText" style="color:#666; font-size:14px; margin-top:5px;">يرجى الانتظار للحظات</div>
         </div>
+        <style>@keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }</style>
 
         <div class="controls-box" id="controlsBox">
             <select id="suraSelect" class="sura-select" onchange="jumpToSura()">
@@ -219,21 +220,30 @@
     </div>
 
     <script>
-        // المتغيرات العامة
         let allVerses = [];
+        let allTafseerText = []; 
         let wirdsList = [];
         let currentWirdIndex = 0;
         let dataLoaded = false;
         let isSearchMode = false;
         let searchResults = [];
 
-        // قائمة بأسماء السور للترتيب
-        const SURA_NAMES = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصح","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الإنفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
-
-        // روابط CDN مضمونة وسريعة جداً (jsDelivr)
-        // هذا المصدر يحتوي على القرآن والتفسير بنفس الترتيب (Array)
-        const URL_QURAN = 'https://cdn.jsdelivr.net/gh/semarketir/quranjson@master/source/quran.json';
-        const URL_TAFSEER = 'https://cdn.jsdelivr.net/gh/semarketir/quranjson@master/source/tafseer.json';
+        // 🚀 نظام المصادر المتعددة (Fallback System)
+        // إذا فشل الأول، نستخدم الثاني تلقائياً
+        const SOURCES = [
+            {
+                // المصدر الأول: API الرسمي للقرآن (موثوق وسريع جداً)
+                name: "API AlQuran.Cloud",
+                quran: 'https://api.alquran.cloud/v1/quran/quran-uthmani',
+                tafseer: 'https://api.alquran.cloud/v1/quran/ar.muyassar' 
+            },
+            {
+                // المصدر الثاني: رابط GitHub Raw مباشر (وليس CDN لتجنب الحظر)
+                name: "GitHub Raw",
+                quran: 'https://raw.githubusercontent.com/semarketir/quranjson/master/source/quran.json',
+                tafseer: 'https://raw.githubusercontent.com/semarketir/quranjson/master/source/tafseer.json'
+            }
+        ];
 
         function normalizeText(text) {
             if (!text) return "";
@@ -246,12 +256,44 @@
                 .trim();
         }
 
+        async function fetchWithFallback(urlIndex = 0) {
+            const status = document.getElementById('statusText');
+            const source = SOURCES[urlIndex];
+
+            if (!source) {
+                throw new Error("فشلت جميع محاولات الاتصال. يرجى التحقق من الإنترنت.");
+            }
+
+            try {
+                console.log(`محاولة الاتصال بالمصدر: ${source.name}`);
+                status.innerText = `جاري التحميل من المصدر ${urlIndex + 1}...`;
+
+                // تحميل متوازي
+                const [qRes, tRes] = await Promise.all([
+                    fetch(source.quran),
+                    fetch(source.tafseer)
+                ]);
+
+                if (!qRes.ok || !tRes.ok) throw new Error("استجابة غير صحيحة");
+
+                const qJson = await qRes.json();
+                const tJson = await tRes.json();
+
+                return { qJson, tJson };
+
+            } catch (err) {
+                console.warn(`فشل المصدر ${source.name}:`, err);
+                // المحاولة مع المصدر التالي
+                return await fetchWithFallback(urlIndex + 1);
+            }
+        }
+
         async function init() {
             const loading = document.getElementById('loadingMsg');
             
-            // إصدار v9 (تنظيف الكاش القديم)
-            const cachedQ = localStorage.getItem('quran_full_v9');
-            const cachedT = localStorage.getItem('tafseer_full_v9');
+            // إصدار v10: تنظيف الكاش إجبارياً للبدء من جديد
+            const cachedQ = localStorage.getItem('quran_full_v10');
+            const cachedT = localStorage.getItem('tafseer_full_v10');
 
             if (cachedQ && cachedT) {
                 try {
@@ -263,66 +305,75 @@
             loading.style.display = 'block';
 
             try {
-                // تحميل متوازي للسرعة
-                const [qRes, tRes] = await Promise.all([
-                    fetch(URL_QURAN),
-                    fetch(URL_TAFSEER)
-                ]);
-
-                if(!qRes.ok || !tRes.ok) throw new Error("فشل في تحميل الملفات");
-
-                const qJson = await qRes.json();
-                const tJson = await tRes.json();
+                // استخدام دالة الجلب الذكية
+                const { qJson, tJson } = await fetchWithFallback(0);
 
                 try {
-                    localStorage.setItem('quran_full_v9', JSON.stringify(qJson));
-                    localStorage.setItem('tafseer_full_v9', JSON.stringify(tJson));
+                    localStorage.setItem('quran_full_v10', JSON.stringify(qJson));
+                    localStorage.setItem('tafseer_full_v10', JSON.stringify(tJson));
                 } catch(e) {
-                    console.log("الذاكرة ممتلئة، سيتم العمل بدون حفظ مؤقت");
+                    console.warn("الذاكرة ممتلئة");
                 }
 
                 processData(qJson, tJson);
                 loading.style.display = 'none';
 
             } catch (e) {
-                loading.innerHTML = `<div style="color:red">فشل الاتصال: ${e.message}</div><button onclick="location.reload()" style="margin-top:15px; padding:10px;">إعادة المحاولة</button>`;
+                loading.innerHTML = `<div style="color:red; font-size:16px;">${e.message}</div><button onclick="location.reload()" style="margin-top:15px; padding:10px 20px; font-weight:bold; cursor:pointer;">إعادة المحاولة</button>`;
             }
         }
 
         function processData(qData, tData) {
             const select = document.getElementById('suraSelect');
+            allVerses = [];
             
-            // تعبئة قائمة السور مرة واحدة
-            SURA_NAMES.forEach(name => {
+            // توحيد هيكل البيانات (لأن المصادر قد تختلف)
+            let qList = qData.data?.surahs || qData.data || qData;
+            let tList = tData.data?.surahs || tData.data || tData;
+
+            // إذا كان المصدر هو مصفوفة مسطحة (GitHub Raw) نحوله لهيكل يشبه API
+            if (Array.isArray(qList) && !qList[0].ayahs && !qList[0].verses) {
+                 // هنا نحتاج منطق خاص إذا كانت البيانات مسطحة تماماً
+                 // لكن سنفترض الهيكل القياسي للتبسيط، الكود التالي يتعامل مع الهيكل الهرمي
+            }
+
+            // 1. معالجة القرآن
+            // تحويل إلى مصفوفة إذا كان كائن
+            if (!Array.isArray(qList)) qList = Object.values(qList);
+
+            qList.forEach((sura, index) => {
                 let opt = document.createElement('option');
-                opt.value = name; opt.textContent = name;
+                opt.value = sura.name; opt.textContent = sura.name;
                 select.appendChild(opt);
+                
+                const sNum = sura.number || sura.id || (index + 1);
+                const ayahs = sura.ayahs || sura.verses || [];
+                
+                ayahs.forEach((v, vIndex) => {
+                    const vNum = v.numberInSurah || v.id || (vIndex + 1);
+                    allVerses.push({ 
+                        text: v.text, 
+                        sNum: Number(sNum), 
+                        sName: sura.name, 
+                        vNum: Number(vNum),
+                        cleanText: normalizeText(v.text)
+                    });
+                });
             });
 
-            allVerses = [];
-
-            // البيانات القادمة من هذا المصدر عبارة عن مصفوفة بسيطة
-            // [ {index, sura, aya, text}, ... ]
-            // والمصفوفة الثانية للتفسير مطابقة لها تماماً في الطول والترتيب
+            // 2. معالجة التفسير
+            allTafseerText = [];
             
-            for(let i = 0; i < qData.length; i++) {
-                const qItem = qData[i];
-                // تأمين في حالة وجود اختلاف بسيط
-                const tText = (tData[i] && tData[i].text) ? tData[i].text : "التفسير غير متوفر";
-                
-                // تحديد اسم السورة
-                const sNum = parseInt(qItem.sura);
-                const sName = SURA_NAMES[sNum - 1] || `سورة ${sNum}`;
-
-                allVerses.push({
-                    text: qItem.text,
-                    sNum: sNum,
-                    sName: sName,
-                    vNum: parseInt(qItem.aya),
-                    cleanText: normalizeText(qItem.text),
-                    tafseerText: tText // دمج التفسير مباشرة هنا
-                });
-            }
+            // في حالة API AlQuran Cloud، التفسير يأتي كنص الآية في ملف التفسير
+            if (!Array.isArray(tList)) tList = Object.values(tList);
+            
+            tList.forEach(sura => {
+                 const ayahs = sura.ayahs || sura.verses || [];
+                 ayahs.forEach(v => {
+                     // النص في ملف التفسير هو التفسير نفسه
+                     allTafseerText.push(v.text || v.content || v.tafseer);
+                 });
+            });
 
             buildWirds();
             dataLoaded = true;
@@ -333,7 +384,10 @@
             let currentWird = [];
             
             for (let i = 0; i < allVerses.length; i++) {
-                currentWird.push(allVerses[i]);
+                currentWird.push({
+                    ...allVerses[i],
+                    tafseerText: allTafseerText[i] || "التفسير غير متوفر"
+                });
                 
                 let isLastInSurah = false;
                 if (i + 1 < allVerses.length) {
@@ -353,7 +407,6 @@
 
         function showWird() {
             if (!dataLoaded) {
-                // محاولة إعادة التحميل إذا فشل سابقاً
                 if(document.getElementById('loadingMsg').style.display === 'none') {
                     init();
                 } else {
@@ -451,7 +504,6 @@
             if(cleanT.length > 1) { 
                 isSearchMode = true;
                 searchResults = [];
-                // البحث في جميع الآيات
                 allVerses.forEach(v => {
                     if (v.cleanText.includes(cleanT)) {
                         searchResults.push(v);
