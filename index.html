@@ -482,6 +482,8 @@
             const rawSearchTerm = document.getElementById('searchInput').value;
             const cleanSearchTerm = normalizeText(rawSearchTerm);
 
+            let currentSurahNum = -1;
+            
             versesToRender.forEach(function(v) {
                 let displayText = v.text;
                 
@@ -492,17 +494,46 @@
                     displayText = v.text.replace(regex, '<span class="highlight-word">$1</span>');
                 }
 
-                // إذا كانت الآية الأولى وفيها بسملة، نضيف سطر جديد بعد "الرحيم"
-                if (v.vNum === 1) {
-                    // استبدال أي شكل من "الرحيم" بـ "الرحيم" + فاصل سطر
-                    displayText = displayText
-                        .replace(/ٱلرَّحِيمِ/g, 'ٱلرَّحِيمِ<br><br>')
-                        .replace(/الرَّحِيمِ/g, 'الرَّحِيمِ<br><br>')
-                        .replace(/الرحيم/g, 'الرحيم<br><br>')
-                        .replace(/ٱلرَّحِيم/g, 'ٱلرَّحِيم<br><br>');
+                // إذا كانت سورة جديدة والآية الأولى
+                if (v.sNum !== currentSurahNum && v.vNum === 1) {
+                    currentSurahNum = v.sNum;
+                    
+                    // استخراج البسملة من النص
+                    let basmalaExtracted = '';
+                    let textWithoutBasmala = displayText;
+                    
+                    // البحث عن كل أشكال "الرحيم"
+                    const rahimVariations = ['ٱلرَّحِيمِ', 'الرَّحِيمِ', 'الرحيم', 'ٱلرَّحِيم', 'الرَّحِيم'];
+                    
+                    for (let i = 0; i < rahimVariations.length; i++) {
+                        const rahim = rahimVariations[i];
+                        const rahimIndex = displayText.indexOf(rahim);
+                        
+                        if (rahimIndex !== -1) {
+                            // استخراج البسملة (من البداية حتى نهاية كلمة "الرحيم")
+                            basmalaExtracted = displayText.substring(0, rahimIndex + rahim.length);
+                            // الباقي من النص
+                            textWithoutBasmala = displayText.substring(rahimIndex + rahim.length).trim();
+                            break;
+                        }
+                    }
+                    
+                    // عرض البسملة في سطر منفصل
+                    if (basmalaExtracted) {
+                        qH += "<div class='basmala'>" + basmalaExtracted + "</div>";
+                    }
+                    
+                    // عرض باقي الآية (إن وجد)
+                    if (textWithoutBasmala) {
+                        qH += "<div style='margin-bottom:35px; border-bottom:1px dashed #ddd; padding-bottom:20px;'>" + textWithoutBasmala + " <span class='verse-info'>﴿" + v.sName + ": " + v.vNum + "﴾</span></div>";
+                    } else {
+                        // لو البسملة لوحدها بدون باقي نص
+                        qH += "<div style='margin-bottom:35px; border-bottom:1px dashed #ddd; padding-bottom:20px;'><span class='verse-info'>﴿" + v.sName + ": " + v.vNum + "﴾</span></div>";
+                    }
+                } else {
+                    // الآيات العادية
+                    qH += "<div style='margin-bottom:35px; border-bottom:1px dashed #ddd; padding-bottom:20px;'>" + displayText + " <span class='verse-info'>﴿" + v.sName + ": " + v.vNum + "﴾</span></div>";
                 }
-
-                qH += "<div style='margin-bottom:35px; border-bottom:1px dashed #ddd; padding-bottom:20px;'>" + displayText + " <span class='verse-info'>﴿" + v.sName + ": " + v.vNum + "﴾</span></div>";
                 
                 tH += "<p style='margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;'><strong>" + v.sName + " (" + v.vNum + "):</strong><br>" + v.tafseerText + "</p>";
             });
