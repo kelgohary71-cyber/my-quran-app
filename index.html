@@ -396,8 +396,30 @@
             
             for (let i = 0; i < allVerses.length; i++) {
                 const tafseerText = allTafseerText[i] ? allTafseerText[i] : "التفسير غير متوفر";
+                
+                let verseText = allVerses[i].text;
+                let basmala = '';
+                
+                // إذا كانت الآية الأولى من أي سورة، نفصل البسملة
+                if (allVerses[i].vNum === 1) {
+                    const rahimVariations = ['ٱلرَّحِيمِ', 'الرَّحِيمِ', 'الرحيم', 'ٱلرَّحِيم', 'الرَّحِيم'];
+                    
+                    for (let j = 0; j < rahimVariations.length; j++) {
+                        const rahim = rahimVariations[j];
+                        const rahimIndex = verseText.indexOf(rahim);
+                        
+                        if (rahimIndex !== -1) {
+                            basmala = verseText.substring(0, rahimIndex + rahim.length);
+                            verseText = verseText.substring(rahimIndex + rahim.length).trim();
+                            break;
+                        }
+                    }
+                }
+                
                 currentWird.push({
-                    text: allVerses[i].text,
+                    text: verseText,
+                    originalText: allVerses[i].text,
+                    basmala: basmala,
                     sNum: allVerses[i].sNum,
                     sName: allVerses[i].sName,
                     vNum: allVerses[i].vNum,
@@ -482,8 +504,6 @@
             const rawSearchTerm = document.getElementById('searchInput').value;
             const cleanSearchTerm = normalizeText(rawSearchTerm);
 
-            let currentSurahNum = -1;
-            
             versesToRender.forEach(function(v) {
                 let displayText = v.text;
                 
@@ -494,44 +514,18 @@
                     displayText = v.text.replace(regex, '<span class="highlight-word">$1</span>');
                 }
 
-                // إذا كانت سورة جديدة والآية الأولى
-                if (v.sNum !== currentSurahNum && v.vNum === 1) {
-                    currentSurahNum = v.sNum;
-                    
-                    // استخراج البسملة من النص
-                    let basmalaExtracted = '';
-                    let textWithoutBasmala = displayText;
-                    
-                    // البحث عن كل أشكال "الرحيم"
-                    const rahimVariations = ['ٱلرَّحِيمِ', 'الرَّحِيمِ', 'الرحيم', 'ٱلرَّحِيم', 'الرَّحِيم'];
-                    
-                    for (let i = 0; i < rahimVariations.length; i++) {
-                        const rahim = rahimVariations[i];
-                        const rahimIndex = displayText.indexOf(rahim);
-                        
-                        if (rahimIndex !== -1) {
-                            // استخراج البسملة (من البداية حتى نهاية كلمة "الرحيم")
-                            basmalaExtracted = displayText.substring(0, rahimIndex + rahim.length);
-                            // الباقي من النص
-                            textWithoutBasmala = displayText.substring(rahimIndex + rahim.length).trim();
-                            break;
-                        }
-                    }
-                    
-                    // عرض البسملة في سطر منفصل
-                    if (basmalaExtracted) {
-                        qH += "<div class='basmala'>" + basmalaExtracted + "</div>";
-                    }
-                    
-                    // عرض باقي الآية (إن وجد)
-                    if (textWithoutBasmala) {
-                        qH += "<div style='margin-bottom:35px; border-bottom:1px dashed #ddd; padding-bottom:20px;'>" + textWithoutBasmala + " <span class='verse-info'>﴿" + v.sName + ": " + v.vNum + "﴾</span></div>";
-                    } else {
-                        // لو البسملة لوحدها بدون باقي نص
-                        qH += "<div style='margin-bottom:35px; border-bottom:1px dashed #ddd; padding-bottom:20px;'><span class='verse-info'>﴿" + v.sName + ": " + v.vNum + "﴾</span></div>";
-                    }
+                // إذا كانت الآية فيها بسملة منفصلة
+                if (v.basmala) {
+                    qH += "<div class='basmala'>" + v.basmala + "</div>";
+                }
+                
+                // عرض الآية
+                if (displayText && displayText.trim()) {
+                    qH += "<div style='margin-bottom:35px; border-bottom:1px dashed #ddd; padding-bottom:20px;'>" + displayText + " <span class='verse-info'>﴿" + v.sName + ": " + v.vNum + "﴾</span></div>";
+                } else if (v.basmala) {
+                    // لو البسملة لوحدها
+                    qH += "<div style='margin-bottom:35px; border-bottom:1px dashed #ddd; padding-bottom:20px;'><span class='verse-info'>﴿" + v.sName + ": " + v.vNum + "﴾</span></div>";
                 } else {
-                    // الآيات العادية
                     qH += "<div style='margin-bottom:35px; border-bottom:1px dashed #ddd; padding-bottom:20px;'>" + displayText + " <span class='verse-info'>﴿" + v.sName + ": " + v.vNum + "﴾</span></div>";
                 }
                 
