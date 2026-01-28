@@ -402,17 +402,13 @@
                 
                 // إذا كانت الآية الأولى من أي سورة، نفصل البسملة
                 if (allVerses[i].vNum === 1) {
-                    const rahimVariations = ['ٱلرَّحِيمِ', 'الرَّحِيمِ', 'الرحيم', 'ٱلرَّحِيم', 'الرَّحِيم'];
+                    // البحث عن البسملة بأي شكل (من "بسم" لحد "الرحيم" بأي تشكيل)
+                    const basmalaRegex = /بِ?سۡ?ْ?مِ?\s*ٱ?للَّ?هِ?\s*ٱ?لرَّ?حۡ?ْ?مَ?ٰ?نِ?\s*ٱ?لرَّ?حِ?يمِ?/;
+                    const match = verseText.match(basmalaRegex);
                     
-                    for (let j = 0; j < rahimVariations.length; j++) {
-                        const rahim = rahimVariations[j];
-                        const rahimIndex = verseText.indexOf(rahim);
-                        
-                        if (rahimIndex !== -1) {
-                            basmala = verseText.substring(0, rahimIndex + rahim.length);
-                            verseText = verseText.substring(rahimIndex + rahim.length).trim();
-                            break;
-                        }
+                    if (match) {
+                        basmala = match[0];
+                        verseText = verseText.replace(basmala, '').trim();
                     }
                 }
                 
