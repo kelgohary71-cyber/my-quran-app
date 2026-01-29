@@ -3,7 +3,7 @@
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║  تطبيق: بلغوا عني ولو آية                                                ║
 ║  المطور: الأستاذ / خالد الجوهري                                          ║
-║  الإصدار: v19 (Basmala Separation Fix)                                  ║
+║  الإصدار: v20 (Ultimate Arabic Search Fix)                              ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 -->
 <html lang="ar" dir="rtl">
@@ -90,7 +90,7 @@
             text-align: center; color: #000; font-weight: 900;
         }
         
-        /* 🌟🌟 تنسيق البسملة الجديد 🌟🌟 */
+        /* تنسيق البسملة */
         .basmala-header {
             display: block;
             width: 100%;
@@ -100,11 +100,7 @@
             border-bottom: 2px solid #e5e7eb;
             color: #065f46;
         }
-        
-        .verse-body {
-            display: block;
-            margin-top: 15px;
-        }
+        .verse-body { display: block; margin-top: 15px; }
         
         .verse-info { 
             color: #065f46; font-size: clamp(16px, 4vw, 20px); font-weight: bold; 
@@ -269,16 +265,27 @@
             }
         ];
 
+        // 🚀 دالة تنظيف النص القوية جداً (تعتمد على الاستبدال الذكي)
         function normalizeText(text) {
             if (!text) return "";
-            return text
-                .replace(/\u0670/g, 'ا') 
-                .replace(/([^\u0621-\u064A\u0660-\u0669\s])/g, '')
-                .replace(/(آ|إ|أ|ٱ)/g, 'ا')
-                .replace(/(ة)/g, 'ه')
-                .replace(/(ى)/g, 'ي')
-                .replace(/(ؤ|ئ)/g, 'ء')
-                .trim();
+            let t = text;
+            
+            // 1. تحويل الألف الخنجرية (المشكلة الرئيسية) إلى ألف عادية
+            t = t.replace(/\u0670/g, 'ا'); 
+            
+            // 2. توحيد كل أشكال الألف
+            t = t.replace(/(آ|إ|أ|ٱ)/g, 'ا');
+            
+            // 3. حذف كل التشكيل والرموز (ما عدا الحروف والأرقام)
+            // هذا التعبير يحذف الفتحة، الضمة، الكسرة، الشدة، السكون، علامات الوقف، إلخ
+            t = t.replace(/[\u0610-\u061A\u064B-\u065F\u06D6-\u06ED]/g, '');
+            
+            // 4. توحيد الياء والتاء المربوطة والهمزات
+            t = t.replace(/ة/g, 'ه');
+            t = t.replace(/(ى|ي)/g, 'ي');
+            t = t.replace(/(ؤ|ئ|ء)/g, 'ء');
+            
+            return t.trim();
         }
 
         async function fetchWithFallback(urlIndex = 0) {
@@ -307,8 +314,9 @@
 
         async function init() {
             const loading = document.getElementById('loadingMsg');
-            const cachedQ = localStorage.getItem('quran_full_v19');
-            const cachedT = localStorage.getItem('tafseer_full_v19');
+            // v20 لتحديث المنطق الجديد
+            const cachedQ = localStorage.getItem('quran_full_v20');
+            const cachedT = localStorage.getItem('tafseer_full_v20');
 
             if (cachedQ && cachedT) {
                 try {
@@ -322,8 +330,8 @@
             try {
                 const { qJson, tJson } = await fetchWithFallback(0);
                 try {
-                    localStorage.setItem('quran_full_v19', JSON.stringify(qJson));
-                    localStorage.setItem('tafseer_full_v19', JSON.stringify(tJson));
+                    localStorage.setItem('quran_full_v20', JSON.stringify(qJson));
+                    localStorage.setItem('tafseer_full_v20', JSON.stringify(tJson));
                 } catch(e) { console.warn("الذاكرة ممتلئة"); }
 
                 processData(qJson, tJson);
@@ -358,7 +366,7 @@
                         sNum: Number(sNum), 
                         sName: sura.name, 
                         vNum: Number(vNum),
-                        cleanText: normalizeText(v.text)
+                        cleanText: normalizeText(v.text) // تخزين النص المنظف للبحث
                     });
                 });
             });
@@ -451,31 +459,33 @@
             versesToRender.forEach(v => {
                 let displayText = v.text;
                 
+                // 🔍 الهايلايت الذكي (يدعم الألف الخنجرية وكل الأشكال)
                 if (isSearchMode && cleanSearchTerm.length > 1) {
-                    const letters = cleanSearchTerm.split('');
-                    const pattern = letters.join('[\\u0600-\\u06FF]*'); 
+                    let pattern = "";
+                    // بناء نمط Regex لكل حرف ليدعم أشكاله والتشكيل بعده
+                    for (let char of cleanSearchTerm) {
+                        const tashkeel = "[\\u064B-\\u065F\\u0610-\\u061A\\u06D6-\\u06ED]*"; 
+                        if (char === 'ا') pattern += "[اآإأٱ\\u0670]" + tashkeel;
+                        else if (char === 'ه') pattern += "[هة]" + tashkeel;
+                        else if (char === 'ي') pattern += "[يى]" + tashkeel;
+                        else if (char === 'ء') pattern += "[ءؤئ]" + tashkeel;
+                        else pattern += char + tashkeel;
+                    }
                     const regex = new RegExp(`(${pattern})`, 'gi');
                     displayText = v.text.replace(regex, '<span class="highlight-word">$1</span>');
                 }
 
-                // 🌟🌟🌟 التعديل الجراحي لفصل البسملة 🌟🌟🌟
-                // شرط: الآية رقم 1 + ليست الفاتحة (1) + ليست التوبة (9)
+                // فصل البسملة
                 if (v.vNum === 1 && v.sNum !== 1 && v.sNum !== 9) {
-                    // نبحث عن النص المميز لنهاية البسملة "ٱلرَّحِيمِ"
-                    // مع مسافة بعدها لضمان أنها كلمة كاملة
                     const keyword = "ٱلرَّحِيمِ";
                     const splitIndex = displayText.indexOf(keyword);
-                    
                     if (splitIndex !== -1) {
                         const cutPoint = splitIndex + keyword.length;
                         const basmalaPart = displayText.substring(0, cutPoint);
                         const restOfVerse = displayText.substring(cutPoint);
-                        
-                        // إعادة البناء: البسملة في ديف، وباقي الآية في ديف آخر
                         displayText = `<div class="basmala-header">${basmalaPart}</div><div class="verse-body">${restOfVerse}</div>`;
                     }
                 }
-                // ------------------------------------------------
 
                 qH += `<div style="margin-bottom:35px; border-bottom:1px dashed #ddd; padding-bottom:20px;">
                         ${displayText} 
@@ -521,6 +531,7 @@
             if(cleanT.length > 1) { 
                 isSearchMode = true;
                 searchResults = [];
+                // البحث في النص المنظف (cleanText)
                 allVerses.forEach(v => {
                     if (v.cleanText.includes(cleanT)) {
                         searchResults.push(v);
@@ -536,7 +547,6 @@
         function openShareModal() {
             const modal = document.getElementById('shareModal');
             let text = getWirdText();
-            
             document.getElementById('waLink').href = `https://wa.me/?text=${encodeURIComponent(text)}`;
             modal.classList.add('active');
         }
@@ -558,10 +568,8 @@
             
             let message = "📖 *ورد اليوم من تطبيق بلغوا عني ولو آية*\n\n";
             list.forEach(v => {
-                // تنظيف النص عند النسخ (إزالة تقسيم البسملة)
                 let cleanVerseText = v.text;
-                if (v.text.includes('<div')) { cleanVerseText = v.text; } // في النسخ نستخدم النص الأصلي
-                
+                if (v.text.includes('<div')) { cleanVerseText = v.text; }
                 message += `🔹 ${cleanVerseText} {${v.sName}: ${v.vNum}}\n`;
                 message += `🔸 التفسير: ${v.tafseerText}\n\n`;
             });
