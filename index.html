@@ -365,12 +365,16 @@
                 
                 ayahs.forEach(function(v, vIndex) {
                     const vNum = v.numberInSurah ? v.numberInSurah : (v.id ? v.id : (vIndex + 1));
+                    
+                    // تنظيف النص من الرموز الخفية
+                    const cleanedText = v.text ? v.text.replace(/^[\uFEFF\u200B-\u200D\u00A0\u202A-\u202E]/g, '').trim() : '';
+                    
                     allVerses.push({ 
-                        text: v.text, 
+                        text: cleanedText, 
                         sNum: Number(sNum), 
                         sName: sura.name, 
                         vNum: Number(vNum),
-                        cleanText: normalizeText(v.text)
+                        cleanText: normalizeText(cleanedText)
                     });
                 });
             });
