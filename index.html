@@ -3,7 +3,7 @@
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║  تطبيق: بلغوا عني ولو آية                                                ║
 ║  المطور: الأستاذ / خالد الجوهري                                          ║
-║  الإصدار: v18 (Final Layout Fix)                                        ║
+║  الإصدار: v19 (Basmala Separation Fix)                                  ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 -->
 <html lang="ar" dir="rtl">
@@ -90,17 +90,20 @@
             text-align: center; color: #000; font-weight: 900;
         }
         
-        /* تنسيق البسملة المفصولة بشكل جميل */
-        .basmala-container {
+        /* 🌟🌟 تنسيق البسملة الجديد 🌟🌟 */
+        .basmala-header {
+            display: block;
             width: 100%;
             text-align: center;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 2px dashed #10b981; /* خط فاصل منقط */
+            border-bottom: 2px solid #e5e7eb;
+            color: #065f46;
         }
+        
         .verse-body {
             display: block;
-            margin-top: 10px;
+            margin-top: 15px;
         }
         
         .verse-info { 
@@ -304,8 +307,8 @@
 
         async function init() {
             const loading = document.getElementById('loadingMsg');
-            const cachedQ = localStorage.getItem('quran_full_v18');
-            const cachedT = localStorage.getItem('tafseer_full_v18');
+            const cachedQ = localStorage.getItem('quran_full_v19');
+            const cachedT = localStorage.getItem('tafseer_full_v19');
 
             if (cachedQ && cachedT) {
                 try {
@@ -319,8 +322,8 @@
             try {
                 const { qJson, tJson } = await fetchWithFallback(0);
                 try {
-                    localStorage.setItem('quran_full_v18', JSON.stringify(qJson));
-                    localStorage.setItem('tafseer_full_v18', JSON.stringify(tJson));
+                    localStorage.setItem('quran_full_v19', JSON.stringify(qJson));
+                    localStorage.setItem('tafseer_full_v19', JSON.stringify(tJson));
                 } catch(e) { console.warn("الذاكرة ممتلئة"); }
 
                 processData(qJson, tJson);
@@ -448,7 +451,6 @@
             versesToRender.forEach(v => {
                 let displayText = v.text;
                 
-                // البحث والهايلايت
                 if (isSearchMode && cleanSearchTerm.length > 1) {
                     const letters = cleanSearchTerm.split('');
                     const pattern = letters.join('[\\u0600-\\u06FF]*'); 
@@ -456,26 +458,24 @@
                     displayText = v.text.replace(regex, '<span class="highlight-word">$1</span>');
                 }
 
-                // 🌟🌟🌟 التعديل الذكي للفصل: البحث عن كلمة "الرحيم" 🌟🌟🌟
+                // 🌟🌟🌟 التعديل الجراحي لفصل البسملة 🌟🌟🌟
+                // شرط: الآية رقم 1 + ليست الفاتحة (1) + ليست التوبة (9)
                 if (v.vNum === 1 && v.sNum !== 1 && v.sNum !== 9) {
-                    // نبحث عن كلمة "الرحيم" في أول 50 حرف فقط لضمان أنها البسملة
-                    const startText = displayText.substring(0, 60); 
-                    // نبحث عن أي شكل لكلمة الرحيم (بتشكيل أو بدون)
-                    const rahimMatch = startText.match(/(الرَّحِيمِ|الرحيم)/);
+                    // نبحث عن النص المميز لنهاية البسملة "ٱلرَّحِيمِ"
+                    // مع مسافة بعدها لضمان أنها كلمة كاملة
+                    const keyword = "ٱلرَّحِيمِ";
+                    const splitIndex = displayText.indexOf(keyword);
                     
-                    if (rahimMatch) {
-                        const splitIndex = rahimMatch.index + rahimMatch[0].length;
+                    if (splitIndex !== -1) {
+                        const cutPoint = splitIndex + keyword.length;
+                        const basmalaPart = displayText.substring(0, cutPoint);
+                        const restOfVerse = displayText.substring(cutPoint);
                         
-                        // نأخذ البسملة
-                        const basmalaPart = displayText.substring(0, splitIndex);
-                        // نأخذ باقي الآية
-                        const restOfVerse = displayText.substring(splitIndex);
-                        
-                        // نضع البسملة في حاوية منفصلة
-                        displayText = `<div class="basmala-container">${basmalaPart}</div><div class="verse-body">${restOfVerse}</div>`;
+                        // إعادة البناء: البسملة في ديف، وباقي الآية في ديف آخر
+                        displayText = `<div class="basmala-header">${basmalaPart}</div><div class="verse-body">${restOfVerse}</div>`;
                     }
                 }
-                // --------------------------------------------------------
+                // ------------------------------------------------
 
                 qH += `<div style="margin-bottom:35px; border-bottom:1px dashed #ddd; padding-bottom:20px;">
                         ${displayText} 
@@ -558,13 +558,9 @@
             
             let message = "📖 *ورد اليوم من تطبيق بلغوا عني ولو آية*\n\n";
             list.forEach(v => {
-                // تنظيف النص من أكواد HTML عند النسخ (مثل البسملة المفصولة)
+                // تنظيف النص عند النسخ (إزالة تقسيم البسملة)
                 let cleanVerseText = v.text;
-                // إذا كانت البسملة مفصولة برمجياً، نعيدها لأصلها في النسخ
-                if (v.text.includes('<div')) {
-                     // هنا نعتمد على النص الخام المخزن أصلاً وليس المعروض
-                     cleanVerseText = v.text; 
-                }
+                if (v.text.includes('<div')) { cleanVerseText = v.text; } // في النسخ نستخدم النص الأصلي
                 
                 message += `🔹 ${cleanVerseText} {${v.sName}: ${v.vNum}}\n`;
                 message += `🔸 التفسير: ${v.tafseerText}\n\n`;
