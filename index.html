@@ -3,7 +3,7 @@
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║  تطبيق: بلغوا عني ولو آية                                                ║
 ║  المطور: الأستاذ / خالد الجوهري                                          ║
-║  الإصدار: v27 (Force Clear Cache + Real-time Deep Search)               ║
+║  الإصدار: v28 (Restored Powerful Search + Fixed Layout)                 ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 -->
 <html lang="ar" dir="rtl">
@@ -43,9 +43,7 @@
             border-radius: 10px; font-weight: 900; font-size: 16px; display: none;
         }
 
-        .container { 
-            width: 95%; max-width: 600px; margin: 0 auto; padding: 10px 0;
-        }
+        .container { width: 95%; max-width: 600px; margin: 0 auto; padding: 10px 0; }
 
         .wird-button {
             background: linear-gradient(135deg, #10b981, #059669);
@@ -92,7 +90,6 @@
             text-align: center; color: #000; font-weight: 900;
         }
         
-        /* تنسيق البسملة */
         .basmala-header {
             display: block; width: 100%; text-align: center; margin-bottom: 20px;
             padding-bottom: 10px; border-bottom: 2px solid #e5e7eb; color: #065f46;
@@ -254,7 +251,7 @@
             }
         ];
 
-        // 🚀 دالة التنظيف "الحية" (تعمل أثناء البحث)
+        // 🚀 دالة تنظيف النص القوية (تمت إعادتها للعمل في الخلفية)
         function normalizeText(text) {
             if (!text) return "";
             return text
@@ -289,12 +286,13 @@
 
         async function init() {
             const loading = document.getElementById('loadingMsg');
+            const status = document.getElementById('statusText');
             
-            // 🔥 v27: تغيير المفتاح لإجبار الحذف
-            const CACHE_KEY_Q = 'quran_full_v27';
-            const CACHE_KEY_T = 'tafseer_full_v27';
+            // v28: مسح كامل للقديم
+            const CACHE_KEY_Q = 'quran_full_v28';
+            const CACHE_KEY_T = 'tafseer_full_v28';
 
-            // مسح أي بيانات قديمة (v26, v25, etc) لتوفير المساحة وتجنب التعارض
+            // تنظيف الذاكرة القديمة
             for(let key in localStorage) {
                 if(key.startsWith('quran_full_') && key !== CACHE_KEY_Q) localStorage.removeItem(key);
                 if(key.startsWith('tafseer_full_') && key !== CACHE_KEY_T) localStorage.removeItem(key);
@@ -315,11 +313,11 @@
             try {
                 const { qJson, tJson } = await fetchWithFallback(0);
                 
-                // نقوم بالمعالجة
+                status.innerText = "جاري تهيئة البيانات للحفظ...";
                 processData(qJson, tJson); 
                 
-                // حفظ البيانات
                 try {
+                    // حفظ البيانات كما هي لضمان عمل البحث
                     localStorage.setItem(CACHE_KEY_Q, JSON.stringify(qJson));
                     localStorage.setItem(CACHE_KEY_T, JSON.stringify(tJson));
                 } catch(e) { console.warn("الذاكرة ممتلئة"); }
@@ -358,7 +356,8 @@
                             sNum: Number(sNum), 
                             sName: sura.name, 
                             vNum: Number(vNum),
-                            // ✅ لا نخزن cleanText في الذاكرة لتوفير المساحة، لكن نولده وقت البحث
+                            // ⚠️ تم استرجاع cleanText بقوة هنا
+                            cleanText: normalizeText(v.text) 
                         });
                     });
                 });
@@ -370,7 +369,6 @@
                     });
                 });
 
-                // دمج التفسير فوراً
                 for(let i=0; i<allVerses.length; i++) {
                     allVerses[i].tafseerText = allTafseerText[i] || "التفسير غير متوفر";
                 }
@@ -512,7 +510,6 @@
             }
         }
 
-        // 🔥 دالة البحث الحية (On-the-fly Search)
         function searchQuran() { 
             const t = document.getElementById('searchInput').value; 
             const cleanT = normalizeText(t);
@@ -520,10 +517,9 @@
             if(cleanT.length > 1) { 
                 isSearchMode = true;
                 searchResults = [];
-                // هنا يحدث السحر: نقوم بتنظيف الآية "الآن" ومقارنتها
+                // البحث الآن يعتمد على cleanText المحفوظ
                 allVerses.forEach(v => {
-                    const verseClean = normalizeText(v.text); // تنظيف الآية لحظياً
-                    if (verseClean.includes(cleanT)) {
+                    if (v.cleanText.includes(cleanT)) {
                         searchResults.push(v);
                     }
                 });
