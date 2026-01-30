@@ -3,7 +3,7 @@
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║  تطبيق: بلغوا عني ولو آية                                                ║
 ║  المطور: الأستاذ / خالد الجوهري                                          ║
-║  الإصدار: v23 (Optimized & Responsive)                                  ║
+║  الإصدار: v25 (Real-time Search Fix)                                    ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 -->
 <html lang="ar" dir="rtl">
@@ -21,7 +21,7 @@
         body { 
             font-family: 'Cairo', sans-serif; 
             background: linear-gradient(135deg, #d1fae5 0%, #fef3c7 50%, #d1fae5 100%); 
-            min-height: 100vh; padding-bottom: 50px; overflow-x: hidden;
+            min-height: 100vh; padding-bottom: 60px; overflow-x: hidden;
         }
         
         .progress-header { 
@@ -32,15 +32,15 @@
         .header-main { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
         
         .app-logo { 
-            width: 60px; height: 60px; border-radius: 12px; border: 2px solid #fbbf24; 
+            width: 55px; height: 55px; border-radius: 12px; border: 2px solid #fbbf24; 
             background: white; object-fit: contain; flex-shrink: 0;
         }
         
         .progress-info { font-size: clamp(18px, 5vw, 24px); font-weight: 900; text-align: center; }
 
         .wird-title {
-            background: #fbbf24; color: #065f46; padding: 10px; margin-top: 10px;
-            border-radius: 10px; font-weight: 900; font-size: 18px; display: none;
+            background: #fbbf24; color: #065f46; padding: 5px 15px; margin-top: 10px;
+            border-radius: 10px; font-weight: 900; font-size: 16px; display: none;
         }
 
         .container { max-width: 800px; margin: 0 auto; padding: 10px; }
@@ -49,7 +49,7 @@
             background: linear-gradient(135deg, #10b981, #059669);
             color: white; border: none; padding: 20px; 
             border-radius: 15px; font-weight: 900; cursor: pointer; width: 100%; 
-            font-size: clamp(20px, 5vw, 28px); margin-bottom: 15px; box-shadow: 0 6px 0 #047857;
+            font-size: clamp(20px, 5vw, 26px); margin-bottom: 15px; box-shadow: 0 6px 0 #047857;
             font-family: 'Cairo'; border: 3px solid #fbbf24;
             transition: transform 0.2s;
         }
@@ -64,14 +64,14 @@
         
         .search-input, .sura-select { 
             width: 100%; padding: 12px; border-radius: 10px; border: 2px solid #fbbf24; 
-            font-family: 'Cairo'; font-weight: 900; font-size: clamp(16px, 4vw, 18px); color: #065f46;
+            font-family: 'Cairo'; font-weight: 900; font-size: 16px; color: #065f46;
         }
 
         .content-area { display: none; }
         .content-area.active { display: block; }
 
         .section-header { 
-            font-size: clamp(16px, 4vw, 20px); font-weight: 900; padding: 10px 20px; 
+            font-size: 18px; font-weight: 900; padding: 10px 20px; 
             border-radius: 15px 15px 0 0; display: inline-block; color: white; 
         }
         .bg-quran { background: #10b981; }
@@ -86,27 +86,22 @@
         .tafseer-box { border-color: #3b82f6; }
 
         .quran-text { 
-            font-family: 'Amiri Quran', serif; font-size: clamp(24px, 6vw, 34px); line-height: 2.2; 
+            font-family: 'Amiri Quran', serif; font-size: clamp(24px, 6vw, 32px); line-height: 2.3; 
             text-align: center; color: #000; font-weight: 900;
         }
         
         .basmala-header {
-            display: block;
-            width: 100%;
-            text-align: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e5e7eb;
-            color: #065f46;
+            display: block; width: 100%; text-align: center; margin-bottom: 20px;
+            padding-bottom: 10px; border-bottom: 2px solid #e5e7eb; color: #065f46;
         }
         .verse-body { display: block; margin-top: 15px; }
         
         .verse-info { 
-            color: #065f46; font-size: clamp(16px, 4vw, 20px); font-weight: bold; 
+            color: #065f46; font-size: 16px; font-weight: bold; 
             display: block; margin-top: 10px; font-family: 'Cairo'; 
         }
         .tafseer-text { 
-            font-size: clamp(18px, 4vw, 22px); font-weight: 800; color: #333; 
+            font-size: clamp(16px, 4vw, 20px); font-weight: 800; color: #333; 
             line-height: 1.7; text-align: justify; 
         }
 
@@ -118,15 +113,15 @@
         .share-btn {
             background: #2563eb; color: white; border: none; padding: 18px; 
             border-radius: 15px; font-weight: 900; cursor: pointer; width: 100%; 
-            font-size: clamp(18px, 5vw, 24px); margin-bottom: 15px; box-shadow: 0 5px 0 #1e40af;
+            font-size: 20px; margin-bottom: 15px; box-shadow: 0 5px 0 #1e40af;
             font-family: 'Cairo';
         }
 
         .nav-buttons { display: flex; gap: 10px; margin: 10px 0; }
         .nav-btn { 
-            flex: 1; padding: 20px; border: none; border-radius: 15px; 
-            font-size: clamp(20px, 5vw, 28px); font-weight: 900; color: white; cursor: pointer; 
-            box-shadow: 0 6px 0 #00000033;
+            flex: 1; padding: 15px; border: none; border-radius: 15px; 
+            font-size: 20px; font-weight: 900; color: white; cursor: pointer; 
+            box-shadow: 0 5px 0 #00000033;
         }
         .btn-prev { background: #FF6B35; }
         .btn-next { background: #8B5CF6; }
@@ -135,19 +130,14 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
             border: 4px solid #fbbf24; border-radius: 20px; padding: 20px; 
             text-align: center; color: white; margin-top: 25px; 
-            font-size: clamp(20px, 5vw, 26px); font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: 20px; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         .footer { 
-            background: #047857; 
-            padding: 18px 15px; 
-            text-align: center; 
-            color: white; 
-            border-radius: 15px; 
-            margin-top: 15px; 
-            font-size: clamp(16px, 3.8vw, 20px); 
-            font-weight: 900; 
-            border: 2px solid #fbbf24; 
-            line-height: 1.8;
+            background: #047857; padding: 15px; text-align: center; color: white; 
+            border-radius: 15px; margin-top: 15px; font-weight: 900; 
+            border: 2px solid #fbbf24; line-height: 1.8;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-size: clamp(14px, 4vw, 18px);
         }
 
         .modal-overlay {
@@ -226,28 +216,15 @@
         </div>
 
         <div class="dedication">صدقة جارية عني وعن والديّا وزوجتي وأولادي</div>
-        <div class="footer">
-            تصميم وتنفيذ: أ/ خالد الجوهري<br>
-            جميع الحقوق محفوظة © 2025
-        </div>
+        <div class="footer">تصميم وتنفيذ: أ / خالد الجوهري<br>جميع الحقوق محفوظة © 2025</div>
     </div>
 
     <div class="modal-overlay" id="shareModal">
         <div class="share-modal">
             <h3 style="color:#065f46; margin-bottom:20px; font-size:22px;">اختر طريقة المشاركة</h3>
-            
-            <a href="#" id="waLink" target="_blank" class="share-option share-wa">
-                <span>💬</span> واتساب
-            </a>
-            
-            <button onclick="shareToFacebookSmart()" class="share-option share-fb">
-                <span>📘</span> فيسبوك (نسخ وفتح)
-            </button>
-            
-            <button onclick="copyWirdText()" class="share-option share-copy">
-                <span>📋</span> نسخ الورد كامل
-            </button>
-
+            <a href="#" id="waLink" target="_blank" class="share-option share-wa"><span>💬</span> واتساب</a>
+            <button onclick="shareToFacebookSmart()" class="share-option share-fb"><span>📘</span> فيسبوك (نسخ وفتح)</button>
+            <button onclick="copyWirdText()" class="share-option share-copy"><span>📋</span> نسخ الورد كامل</button>
             <button class="close-modal" onclick="document.getElementById('shareModal').classList.remove('active')">إغلاق</button>
         </div>
     </div>
@@ -274,30 +251,22 @@
             }
         ];
 
+        // 🚀 دالة التنظيف القوية جداً
         function normalizeText(text) {
             if (!text) return "";
-            let t = text;
-            
-            t = t.replace(/\u0670/g, 'ا');
-            t = t.replace(/\u06E5/g, 'و');
-            t = t.replace(/\u06E6/g, 'ي');
-            t = t.replace(/\u0640/g, '');
-            
-            t = t.replace(/(آ|إ|أ|ٱ)/g, 'ا');
-            
-            t = t.replace(/[\u0610-\u061A\u064B-\u065F\u06D6-\u06ED\u06D7-\u06DB]/g, '');
-            
-            t = t.replace(/ة/g, 'ه');
-            t = t.replace(/(ى|ي)/g, 'ي');
-            t = t.replace(/(ؤ|ئ|ء)/g, 'ء');
-            
-            return t.trim();
+            return text
+                .replace(/\u0670/g, 'ا') 
+                .replace(/([^\u0621-\u064A\u0660-\u0669\s])/g, '')
+                .replace(/(آ|إ|أ|ٱ)/g, 'ا')
+                .replace(/(ة)/g, 'ه')
+                .replace(/(ى)/g, 'ي')
+                .replace(/(ؤ|ئ)/g, 'ء')
+                .trim();
         }
 
         async function fetchWithFallback(urlIndex = 0) {
             const status = document.getElementById('statusText');
             const source = SOURCES[urlIndex];
-
             if (!source) throw new Error("فشلت جميع المحاولات.");
 
             try {
@@ -306,13 +275,10 @@
                     fetch(source.quran),
                     fetch(source.tafseer)
                 ]);
-
                 if (!qRes.ok || !tRes.ok) throw new Error("خطأ");
-
                 const qJson = await qRes.json();
                 const tJson = await tRes.json();
                 return { qJson, tJson };
-
             } catch (err) {
                 return await fetchWithFallback(urlIndex + 1);
             }
@@ -320,88 +286,89 @@
 
         async function init() {
             const loading = document.getElementById('loadingMsg');
-            const CACHE_VERSION = 'v23';
+            const status = document.getElementById('statusText');
             
-            const cachedQ = localStorage.getItem('quran_full_' + CACHE_VERSION);
-            const cachedT = localStorage.getItem('tafseer_full_' + CACHE_VERSION);
+            // v25: لتنظيف أي بيانات قديمة قد تكون بدون نص البحث
+            const CACHE_KEY_Q = 'quran_full_v25';
+            const CACHE_KEY_T = 'tafseer_full_v25';
+
+            const cachedQ = localStorage.getItem(CACHE_KEY_Q);
+            const cachedT = localStorage.getItem(CACHE_KEY_T);
 
             if (cachedQ && cachedT) {
                 try {
-                    console.log('✅ تحميل من الكاش - أوف لاين');
                     processData(JSON.parse(cachedQ), JSON.parse(cachedT));
                     return;
-                } catch(e) {
-                    console.warn('خطأ في الكاش');
-                    localStorage.removeItem('quran_full_' + CACHE_VERSION);
-                    localStorage.removeItem('tafseer_full_' + CACHE_VERSION);
-                }
+                } catch(e) { }
             }
 
             loading.style.display = 'block';
 
             try {
                 const { qJson, tJson } = await fetchWithFallback(0);
+                
+                status.innerText = "جاري تهيئة البيانات للحفظ...";
+                processData(qJson, tJson); 
+                
                 try {
-                    localStorage.setItem('quran_full_' + CACHE_VERSION, JSON.stringify(qJson));
-                    localStorage.setItem('tafseer_full_' + CACHE_VERSION, JSON.stringify(tJson));
-                    console.log('✅ حفظ البيانات - سيعمل أوف لاين في المرات القادمة');
-                } catch(e) { 
-                    console.warn("الذاكرة ممتلئة");
-                }
-
-                processData(qJson, tJson);
-                loading.style.display = 'none';
+                    localStorage.setItem(CACHE_KEY_Q, JSON.stringify(qJson));
+                    localStorage.setItem(CACHE_KEY_T, JSON.stringify(tJson));
+                } catch(e) { console.warn("الذاكرة ممتلئة"); }
 
             } catch (e) {
-                loading.innerHTML = `<div style="color:red; font-size:16px;">فشل التحميل. تأكد من الاتصال بالإنترنت.</div><button onclick="location.reload()" style="margin-top:15px; padding:10px;">إعادة المحاولة</button>`;
+                loading.innerHTML = `<div style="color:red; font-size:16px;">${e.message}</div><button onclick="location.reload()" style="margin-top:15px; padding:10px;">إعادة المحاولة</button>`;
             }
         }
 
         function processData(qData, tData) {
+            const loading = document.getElementById('loadingMsg');
             const select = document.getElementById('suraSelect');
-            allVerses = [];
             
-            let qList = qData.data?.surahs || qData.data || qData;
-            let tList = tData.data?.surahs || tData.data || tData;
+            setTimeout(() => {
+                allVerses = [];
+                allTafseerText = [];
 
-            if (!Array.isArray(qList)) qList = Object.values(qList);
+                let qList = qData.data?.surahs || qData.data || qData;
+                let tList = tData.data?.surahs || tData.data || tData;
+                
+                if (!Array.isArray(qList)) qList = Object.values(qList);
+                if (!Array.isArray(tList)) tList = Object.values(tList);
 
-            qList.forEach((sura, index) => {
-                let opt = document.createElement('option');
-                opt.value = sura.name; opt.textContent = sura.name;
-                select.appendChild(opt);
-                
-                const sNum = sura.number || sura.id || (index + 1);
-                const ayahs = sura.ayahs || sura.verses || [];
-                
-                ayahs.forEach((v, vIndex) => {
-                    const vNum = v.numberInSurah || v.id || (vIndex + 1);
-                    allVerses.push({ 
-                        text: v.text, 
-                        sNum: Number(sNum), 
-                        sName: sura.name, 
-                        vNum: Number(vNum),
-                        cleanText: normalizeText(v.text)
+                qList.forEach((sura, index) => {
+                    let opt = document.createElement('option');
+                    opt.value = sura.name; opt.textContent = sura.name;
+                    select.appendChild(opt);
+                    
+                    const sNum = sura.number || sura.id || (index + 1);
+                    const ayahs = sura.ayahs || sura.verses || [];
+                    
+                    ayahs.forEach((v, vIndex) => {
+                        const vNum = v.numberInSurah || v.id || (vIndex + 1);
+                        allVerses.push({ 
+                            text: v.text, 
+                            sNum: Number(sNum), 
+                            sName: sura.name, 
+                            vNum: Number(vNum)
+                            // لا نحفظ cleanText هنا لتوفير الذاكرة، بل نولده وقت البحث
+                        });
                     });
                 });
-            });
 
-            allTafseerText = [];
-            if (!Array.isArray(tList)) tList = Object.values(tList);
-            
-            tList.forEach(sura => {
-                 const ayahs = sura.ayahs || sura.verses || [];
-                 ayahs.forEach(v => {
-                     allTafseerText.push(v.text || v.content || v.tafseer);
-                 });
-            });
+                tList.forEach(sura => {
+                    const ayahs = sura.ayahs || sura.verses || [];
+                    ayahs.forEach(v => {
+                        allTafseerText.push(v.text || v.content || v.tafseer);
+                    });
+                });
 
-            for(let i=0; i<allVerses.length; i++) {
-                allVerses[i].tafseerText = allTafseerText[i] || "التفسير غير متوفر";
-            }
+                for(let i=0; i<allVerses.length; i++) {
+                    allVerses[i].tafseerText = allTafseerText[i] || "التفسير غير متوفر";
+                }
 
-            buildWirds();
-            dataLoaded = true;
+                buildWirds();
+                dataLoaded = true;
+                loading.style.display = 'none';
+            }, 50);
         }
 
         function buildWirds() {
@@ -459,13 +426,14 @@
             }
 
             if (!versesToRender || versesToRender.length === 0) {
-                document.getElementById('quran-content').innerHTML = '<div style="padding:20px">لا توجد بيانات</div>';
+                document.getElementById('quran-content').innerHTML = '<div style="padding:20px; font-weight:bold; color:#d97706;">لا توجد نتائج مطابقة للبحث</div>';
                 document.getElementById('tafseer-content').innerHTML = '';
                 return;
             }
 
             let qH = ""; let tH = "";
             const rawSearchTerm = document.getElementById('searchInput').value;
+            // ⚠️ توليد النص النظيف هنا (On-the-fly) لحل مشكلة البحث
             const cleanSearchTerm = normalizeText(rawSearchTerm);
 
             versesToRender.forEach(v => {
@@ -478,7 +446,6 @@
                         if (char === 'ا') pattern += "[اآإأٱ\\u0670]" + tashkeel;
                         else if (char === 'ه') pattern += "[هة]" + tashkeel;
                         else if (char === 'ي') pattern += "[يى\\u06E6]" + tashkeel;
-                        else if (char === 'و') pattern += "[و\\u06E5]" + tashkeel;
                         else if (char === 'ء') pattern += "[ءؤئ]" + tashkeel;
                         else pattern += char + tashkeel;
                     }
@@ -487,9 +454,8 @@
                 }
 
                 if (v.vNum === 1 && v.sNum !== 1 && v.sNum !== 9) {
-                    const keyword = "ٱلرَّحِيمِ";
+                    const keyword = "ٱلرَّحِيمِ";
                     const splitIndex = displayText.indexOf(keyword);
-                    
                     if (splitIndex !== -1) {
                         const cutPoint = splitIndex + keyword.length;
                         const basmalaPart = displayText.substring(0, cutPoint);
@@ -539,13 +505,16 @@
 
         function searchQuran() { 
             const t = document.getElementById('searchInput').value; 
+            // ⚠️ توليد النص النظيف من المدخلات
             const cleanT = normalizeText(t);
             
             if(cleanT.length > 1) { 
                 isSearchMode = true;
                 searchResults = [];
+                // ⚠️ هنا البحث الحقيقي: ننظف الآية "الآن" ونقارنها
                 allVerses.forEach(v => {
-                    if (v.cleanText.includes(cleanT)) {
+                    const verseClean = normalizeText(v.text); // تنظيف الآية لحظياً
+                    if (verseClean.includes(cleanT)) {
                         searchResults.push(v);
                     }
                 });
@@ -566,12 +535,7 @@
         function shareToFacebookSmart() {
             let text = getWirdText();
             navigator.clipboard.writeText(text).then(() => {
-                currentWirdIndex++;
-                if (currentWirdIndex >= wirdsList.length) currentWirdIndex = 0;
-                localStorage.setItem('saved_wird_progress', currentWirdIndex);
-                render();
-
-                if(confirm("✅ تم نسخ الورد!\n\nتم تحديث التطبيق للورد التالي.\n\nهل تريد فتح فيسبوك الآن؟")) {
+                if(confirm("✅ تم نسخ الورد!\n\nبما أن فيسبوك يمنع النشر التلقائي:\n1. سيفتح فيسبوك الآن.\n2. اضغط (لصق/Paste) في المنشور.\n\nهل تريد فتح فيسبوك الآن؟")) {
                     window.open("https://www.facebook.com", "_blank");
                 }
             }).catch(() => {
@@ -598,12 +562,7 @@
         function copyWirdText() {
             let text = getWirdText();
             navigator.clipboard.writeText(text).then(() => {
-                currentWirdIndex++;
-                if (currentWirdIndex >= wirdsList.length) currentWirdIndex = 0;
-                localStorage.setItem('saved_wird_progress', currentWirdIndex);
-                render();
-
-                alert("✅ تم نسخ الورد بالكامل!\n\nتم الانتقال للورد التالي.");
+                alert("✅ تم نسخ الورد بالكامل!");
                 document.getElementById('shareModal').classList.remove('active');
             }).catch(() => alert("❌ تعذر النسخ"));
         }
