@@ -3,7 +3,7 @@
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║  تطبيق: بلغوا عني ولو آية                                                ║
 ║  المطور: الأستاذ / خالد الجوهري                                          ║
-║  الإصدار: v20 (Progress Based on Sharing)                               ║
+║  الإصدار: v22 (Comprehensive Arabic Search Fix)                         ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 -->
 <html lang="ar" dir="rtl">
@@ -90,6 +90,7 @@
             text-align: center; color: #000; font-weight: 900;
         }
         
+        /* تنسيق البسملة */
         .basmala-header {
             display: block;
             width: 100%;
@@ -99,7 +100,6 @@
             border-bottom: 2px solid #e5e7eb;
             color: #065f46;
         }
-        
         .verse-body { display: block; margin-top: 15px; }
         
         .verse-info { 
@@ -227,7 +227,7 @@
         <div class="share-modal">
             <h3 style="color:#065f46; margin-bottom:20px; font-size:22px;">اختر طريقة المشاركة</h3>
             
-            <a href="#" id="waLink" target="_blank" onclick="markWirdAsDone()" class="share-option share-wa">
+            <a href="#" id="waLink" target="_blank" class="share-option share-wa">
                 <span>💬</span> واتساب
             </a>
             
@@ -265,16 +265,29 @@
             }
         ];
 
+        // 🚀 دالة تنظيف النص المطورة (v22)
         function normalizeText(text) {
             if (!text) return "";
-            return text
-                .replace(/\u0670/g, 'ا') 
-                .replace(/([^\u0621-\u064A\u0660-\u0669\s])/g, '')
-                .replace(/(آ|إ|أ|ٱ)/g, 'ا')
-                .replace(/(ة)/g, 'ه')
-                .replace(/(ى)/g, 'ي')
-                .replace(/(ؤ|ئ)/g, 'ء')
-                .trim();
+            let t = text;
+            
+            // 1. تحويل الرموز القرآنية الخاصة
+            t = t.replace(/\u0670/g, 'ا'); // الألف الخنجرية
+            t = t.replace(/\u06E5/g, 'و'); // الواو الصغيرة
+            t = t.replace(/\u06E6/g, 'ي'); // الياء الصغيرة
+            t = t.replace(/\u0640/g, '');  // التطويل (الكشيدة)
+            
+            // 2. توحيد الألفات
+            t = t.replace(/(آ|إ|أ|ٱ)/g, 'ا');
+            
+            // 3. حذف جميع حركات التشكيل وعلامات الوقف
+            t = t.replace(/[\u0610-\u061A\u064B-\u065F\u06D6-\u06ED\u06D7-\u06DB]/g, '');
+            
+            // 4. توحيد الحروف المتشابهة
+            t = t.replace(/ة/g, 'ه');
+            t = t.replace(/(ى|ي)/g, 'ي');
+            t = t.replace(/(ؤ|ئ|ء)/g, 'ء');
+            
+            return t.trim();
         }
 
         async function fetchWithFallback(urlIndex = 0) {
@@ -303,8 +316,9 @@
 
         async function init() {
             const loading = document.getElementById('loadingMsg');
-            const cachedQ = localStorage.getItem('quran_full_v20');
-            const cachedT = localStorage.getItem('tafseer_full_v20');
+            // v22 لتنظيف الكاش وتطبيق البحث الجديد
+            const cachedQ = localStorage.getItem('quran_full_v22');
+            const cachedT = localStorage.getItem('tafseer_full_v22');
 
             if (cachedQ && cachedT) {
                 try {
@@ -318,8 +332,8 @@
             try {
                 const { qJson, tJson } = await fetchWithFallback(0);
                 try {
-                    localStorage.setItem('quran_full_v20', JSON.stringify(qJson));
-                    localStorage.setItem('tafseer_full_v20', JSON.stringify(tJson));
+                    localStorage.setItem('quran_full_v22', JSON.stringify(qJson));
+                    localStorage.setItem('tafseer_full_v22', JSON.stringify(tJson));
                 } catch(e) { console.warn("الذاكرة ممتلئة"); }
 
                 processData(qJson, tJson);
@@ -354,7 +368,7 @@
                         sNum: Number(sNum), 
                         sName: sura.name, 
                         vNum: Number(vNum),
-                        cleanText: normalizeText(v.text)
+                        cleanText: normalizeText(v.text) // تطبيق التنظيف المطور
                     });
                 });
             });
@@ -400,26 +414,6 @@
             }
         }
 
-        // 🌟 دالة لزيادة العداد (التقدم للورد التالي)
-        function advanceToNextWird() {
-            currentWirdIndex++;
-            if (currentWirdIndex >= wirdsList.length) {
-                currentWirdIndex = 0; // العودة للأول بعد الختم
-            }
-            // حفظ التقدم في الذاكرة
-            localStorage.setItem('saved_wird_progress', currentWirdIndex);
-            // تحديث العرض فوراً
-            render();
-        }
-
-        // دالة مساعدة لزر الواتس اب لزيادة العداد عند الضغط
-        function markWirdAsDone() {
-            // ننتظر قليلاً لضمان فتح الواتساب أولاً
-            setTimeout(() => {
-                advanceToNextWird();
-            }, 1000);
-        }
-
         function showWird() {
             if (!dataLoaded) {
                 if(document.getElementById('loadingMsg').style.display === 'none') {
@@ -432,7 +426,6 @@
             document.getElementById('controlsBox').classList.add('active');
             document.getElementById('contentArea').classList.add('active');
 
-            // 🌟 قراءة التقدم المحفوظ بدلاً من التاريخ
             const savedIndex = localStorage.getItem('saved_wird_progress');
             currentWirdIndex = savedIndex ? parseInt(savedIndex) : 0;
 
@@ -465,13 +458,24 @@
             versesToRender.forEach(v => {
                 let displayText = v.text;
                 
+                // البحث والهايلايت
                 if (isSearchMode && cleanSearchTerm.length > 1) {
-                    const letters = cleanSearchTerm.split('');
-                    const pattern = letters.join('[\\u0600-\\u06FF]*'); 
+                    // نمط Regex شامل لكل الحالات
+                    let pattern = "";
+                    for (let char of cleanSearchTerm) {
+                        const tashkeel = "[\\u064B-\\u065F\\u0610-\\u061A\\u06D6-\\u06ED\\u0670\\u06E5\\u06E6]*"; 
+                        if (char === 'ا') pattern += "[اآإأٱ\\u0670]" + tashkeel;
+                        else if (char === 'ه') pattern += "[هة]" + tashkeel;
+                        else if (char === 'ي') pattern += "[يى\\u06E6]" + tashkeel;
+                        else if (char === 'و') pattern += "[و\\u06E5]" + tashkeel;
+                        else if (char === 'ء') pattern += "[ءؤئ]" + tashkeel;
+                        else pattern += char + tashkeel;
+                    }
                     const regex = new RegExp(`(${pattern})`, 'gi');
                     displayText = v.text.replace(regex, '<span class="highlight-word">$1</span>');
                 }
 
+                // فصل البسملة
                 if (v.vNum === 1 && v.sNum !== 1 && v.sNum !== 9) {
                     const keyword = "ٱلرَّحِيمِ";
                     const splitIndex = displayText.indexOf(keyword);
@@ -506,7 +510,6 @@
             const newIndex = currentWirdIndex + d;
             if (newIndex < 0 || newIndex >= wirdsList.length) return;
             currentWirdIndex = newIndex;
-            // 🌟 حفظ التقدم عند التنقل اليدوي أيضاً
             localStorage.setItem('saved_wird_progress', currentWirdIndex);
             render(); 
         }
@@ -519,7 +522,6 @@
             const idx = wirdsList.findIndex(wird => wird[0].sName === n);
             if(idx !== -1) {
                 currentWirdIndex = idx;
-                // حفظ التقدم عند اختيار سورة
                 localStorage.setItem('saved_wird_progress', currentWirdIndex);
                 render();
             }
@@ -551,14 +553,16 @@
             modal.classList.add('active');
         }
 
-        // 🌟 تعديل دالة فيسبوك لزيادة العداد
         function shareToFacebookSmart() {
             let text = getWirdText();
             navigator.clipboard.writeText(text).then(() => {
                 // زيادة العداد
-                advanceToNextWird();
-                
-                if(confirm("✅ تم نسخ الورد!\n\nتم تحديث التطبيق للورد التالي (غداً).\n\nهل تريد فتح فيسبوك الآن للصق الورد؟")) {
+                currentWirdIndex++;
+                if (currentWirdIndex >= wirdsList.length) currentWirdIndex = 0;
+                localStorage.setItem('saved_wird_progress', currentWirdIndex);
+                render();
+
+                if(confirm("✅ تم نسخ الورد!\n\nتم تحديث التطبيق للورد التالي.\n\nهل تريد فتح فيسبوك الآن؟")) {
                     window.open("https://www.facebook.com", "_blank");
                 }
             }).catch(() => {
@@ -582,13 +586,15 @@
             return message;
         }
 
-        // 🌟 تعديل دالة النسخ لزيادة العداد
         function copyWirdText() {
             let text = getWirdText();
             navigator.clipboard.writeText(text).then(() => {
                 // زيادة العداد
-                advanceToNextWird();
-                
+                currentWirdIndex++;
+                if (currentWirdIndex >= wirdsList.length) currentWirdIndex = 0;
+                localStorage.setItem('saved_wird_progress', currentWirdIndex);
+                render();
+
                 alert("✅ تم نسخ الورد بالكامل!\n\nتم الانتقال للورد التالي.");
                 document.getElementById('shareModal').classList.remove('active');
             }).catch(() => alert("❌ تعذر النسخ"));
