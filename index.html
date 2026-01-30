@@ -3,7 +3,7 @@
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║  تطبيق: بلغوا عني ولو آية                                                ║
 ║  المطور: الأستاذ / خالد الجوهري                                          ║
-║  الإصدار: v22 (Comprehensive Arabic Search Fix)                         ║
+║  الإصدار: v23 (Optimized & Responsive)                                  ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 -->
 <html lang="ar" dir="rtl">
@@ -90,7 +90,6 @@
             text-align: center; color: #000; font-weight: 900;
         }
         
-        /* تنسيق البسملة */
         .basmala-header {
             display: block;
             width: 100%;
@@ -139,9 +138,16 @@
             font-size: clamp(20px, 5vw, 26px); font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         .footer { 
-            background: #047857; padding: 18px; text-align: center; color: white; 
-            border-radius: 15px; margin-top: 15px; font-size: clamp(18px, 4vw, 22px); 
-            font-weight: 900; border: 2px solid #fbbf24; line-height: 1.8;
+            background: #047857; 
+            padding: 15px 10px; 
+            text-align: center; 
+            color: white; 
+            border-radius: 15px; 
+            margin-top: 15px; 
+            font-size: clamp(13px, 3vw, 18px); 
+            font-weight: 900; 
+            border: 2px solid #fbbf24; 
+            line-height: 1.6;
         }
 
         .modal-overlay {
@@ -220,7 +226,7 @@
         </div>
 
         <div class="dedication">صدقة جارية عني وعن والديّا وزوجتي وأولادي</div>
-        <div class="footer">تصميم وتنفيذ: أ / خالد الجوهري<br>جميع الحقوق محفوظة © 2025</div>
+        <div class="footer">تصميم وتنفيذ: أ/ خالد الجوهري | جميع الحقوق محفوظة © 2025</div>
     </div>
 
     <div class="modal-overlay" id="shareModal">
@@ -265,24 +271,19 @@
             }
         ];
 
-        // 🚀 دالة تنظيف النص المطورة (v22)
         function normalizeText(text) {
             if (!text) return "";
             let t = text;
             
-            // 1. تحويل الرموز القرآنية الخاصة
-            t = t.replace(/\u0670/g, 'ا'); // الألف الخنجرية
-            t = t.replace(/\u06E5/g, 'و'); // الواو الصغيرة
-            t = t.replace(/\u06E6/g, 'ي'); // الياء الصغيرة
-            t = t.replace(/\u0640/g, '');  // التطويل (الكشيدة)
+            t = t.replace(/\u0670/g, 'ا');
+            t = t.replace(/\u06E5/g, 'و');
+            t = t.replace(/\u06E6/g, 'ي');
+            t = t.replace(/\u0640/g, '');
             
-            // 2. توحيد الألفات
             t = t.replace(/(آ|إ|أ|ٱ)/g, 'ا');
             
-            // 3. حذف جميع حركات التشكيل وعلامات الوقف
             t = t.replace(/[\u0610-\u061A\u064B-\u065F\u06D6-\u06ED\u06D7-\u06DB]/g, '');
             
-            // 4. توحيد الحروف المتشابهة
             t = t.replace(/ة/g, 'ه');
             t = t.replace(/(ى|ي)/g, 'ي');
             t = t.replace(/(ؤ|ئ|ء)/g, 'ء');
@@ -316,15 +317,21 @@
 
         async function init() {
             const loading = document.getElementById('loadingMsg');
-            // v22 لتنظيف الكاش وتطبيق البحث الجديد
-            const cachedQ = localStorage.getItem('quran_full_v22');
-            const cachedT = localStorage.getItem('tafseer_full_v22');
+            const CACHE_VERSION = 'v23';
+            
+            const cachedQ = localStorage.getItem('quran_full_' + CACHE_VERSION);
+            const cachedT = localStorage.getItem('tafseer_full_' + CACHE_VERSION);
 
             if (cachedQ && cachedT) {
                 try {
+                    console.log('✅ تحميل من الكاش - أوف لاين');
                     processData(JSON.parse(cachedQ), JSON.parse(cachedT));
                     return;
-                } catch(e) { }
+                } catch(e) {
+                    console.warn('خطأ في الكاش');
+                    localStorage.removeItem('quran_full_' + CACHE_VERSION);
+                    localStorage.removeItem('tafseer_full_' + CACHE_VERSION);
+                }
             }
 
             loading.style.display = 'block';
@@ -332,15 +339,18 @@
             try {
                 const { qJson, tJson } = await fetchWithFallback(0);
                 try {
-                    localStorage.setItem('quran_full_v22', JSON.stringify(qJson));
-                    localStorage.setItem('tafseer_full_v22', JSON.stringify(tJson));
-                } catch(e) { console.warn("الذاكرة ممتلئة"); }
+                    localStorage.setItem('quran_full_' + CACHE_VERSION, JSON.stringify(qJson));
+                    localStorage.setItem('tafseer_full_' + CACHE_VERSION, JSON.stringify(tJson));
+                    console.log('✅ حفظ البيانات - سيعمل أوف لاين في المرات القادمة');
+                } catch(e) { 
+                    console.warn("الذاكرة ممتلئة");
+                }
 
                 processData(qJson, tJson);
                 loading.style.display = 'none';
 
             } catch (e) {
-                loading.innerHTML = `<div style="color:red; font-size:16px;">${e.message}</div><button onclick="location.reload()" style="margin-top:15px; padding:10px;">إعادة المحاولة</button>`;
+                loading.innerHTML = `<div style="color:red; font-size:16px;">فشل التحميل. تأكد من الاتصال بالإنترنت.</div><button onclick="location.reload()" style="margin-top:15px; padding:10px;">إعادة المحاولة</button>`;
             }
         }
 
@@ -368,7 +378,7 @@
                         sNum: Number(sNum), 
                         sName: sura.name, 
                         vNum: Number(vNum),
-                        cleanText: normalizeText(v.text) // تطبيق التنظيف المطور
+                        cleanText: normalizeText(v.text)
                     });
                 });
             });
@@ -458,9 +468,7 @@
             versesToRender.forEach(v => {
                 let displayText = v.text;
                 
-                // البحث والهايلايت
                 if (isSearchMode && cleanSearchTerm.length > 1) {
-                    // نمط Regex شامل لكل الحالات
                     let pattern = "";
                     for (let char of cleanSearchTerm) {
                         const tashkeel = "[\\u064B-\\u065F\\u0610-\\u061A\\u06D6-\\u06ED\\u0670\\u06E5\\u06E6]*"; 
@@ -475,9 +483,8 @@
                     displayText = v.text.replace(regex, '<span class="highlight-word">$1</span>');
                 }
 
-                // فصل البسملة
                 if (v.vNum === 1 && v.sNum !== 1 && v.sNum !== 9) {
-                    const keyword = "ٱلرَّحِيمِ";
+                    const keyword = "ٱلرَّحِيمِ";
                     const splitIndex = displayText.indexOf(keyword);
                     
                     if (splitIndex !== -1) {
@@ -556,7 +563,6 @@
         function shareToFacebookSmart() {
             let text = getWirdText();
             navigator.clipboard.writeText(text).then(() => {
-                // زيادة العداد
                 currentWirdIndex++;
                 if (currentWirdIndex >= wirdsList.length) currentWirdIndex = 0;
                 localStorage.setItem('saved_wird_progress', currentWirdIndex);
@@ -581,26 +587,4 @@
                 message += `🔹 ${cleanVerseText} {${v.sName}: ${v.vNum}}\n`;
                 message += `🔸 التفسير: ${v.tafseerText}\n\n`;
             });
-            message += "\n✨ صدقة جارية للأستاذ خالد الجوهري\n";
-            message += "📱 رابط التطبيق: " + window.location.href;
-            return message;
-        }
-
-        function copyWirdText() {
-            let text = getWirdText();
-            navigator.clipboard.writeText(text).then(() => {
-                // زيادة العداد
-                currentWirdIndex++;
-                if (currentWirdIndex >= wirdsList.length) currentWirdIndex = 0;
-                localStorage.setItem('saved_wird_progress', currentWirdIndex);
-                render();
-
-                alert("✅ تم نسخ الورد بالكامل!\n\nتم الانتقال للورد التالي.");
-                document.getElementById('shareModal').classList.remove('active');
-            }).catch(() => alert("❌ تعذر النسخ"));
-        }
-
-        init();
-    </script>
-</body>
-</html>
+            message += "\n✨ صدقة جارية للأست
