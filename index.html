@@ -3,7 +3,7 @@
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║  تطبيق: بلغوا عني ولو آية                                                ║
 ║  المطور: الأستاذ / خالد الجوهري                                          ║
-║  الإصدار: v19 (Final Fix for Search Tafseer & Basmala)                  ║
+║  الإصدار: v20 (Progress Based on Sharing)                               ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 -->
 <html lang="ar" dir="rtl">
@@ -90,7 +90,6 @@
             text-align: center; color: #000; font-weight: 900;
         }
         
-        /* تنسيق البسملة */
         .basmala-header {
             display: block;
             width: 100%;
@@ -100,6 +99,7 @@
             border-bottom: 2px solid #e5e7eb;
             color: #065f46;
         }
+        
         .verse-body { display: block; margin-top: 15px; }
         
         .verse-info { 
@@ -227,7 +227,7 @@
         <div class="share-modal">
             <h3 style="color:#065f46; margin-bottom:20px; font-size:22px;">اختر طريقة المشاركة</h3>
             
-            <a href="#" id="waLink" target="_blank" class="share-option share-wa">
+            <a href="#" id="waLink" target="_blank" onclick="markWirdAsDone()" class="share-option share-wa">
                 <span>💬</span> واتساب
             </a>
             
@@ -369,8 +369,6 @@
                  });
             });
 
-            // ⚠️⚠️ التعديل الجوهري: دمج التفسير فوراً مع الآيات ⚠️⚠️
-            // هذا يضمن أن الآيات (سواء في البحث أو الورد) تحتوي على التفسير دائماً
             for(let i=0; i<allVerses.length; i++) {
                 allVerses[i].tafseerText = allTafseerText[i] || "التفسير غير متوفر";
             }
@@ -384,7 +382,6 @@
             let currentWird = [];
             
             for (let i = 0; i < allVerses.length; i++) {
-                // الآيات الآن تحتوي على التفسير بالفعل من خطوة processData
                 currentWird.push(allVerses[i]);
                 
                 let isLastInSurah = false;
@@ -403,6 +400,26 @@
             }
         }
 
+        // 🌟 دالة لزيادة العداد (التقدم للورد التالي)
+        function advanceToNextWird() {
+            currentWirdIndex++;
+            if (currentWirdIndex >= wirdsList.length) {
+                currentWirdIndex = 0; // العودة للأول بعد الختم
+            }
+            // حفظ التقدم في الذاكرة
+            localStorage.setItem('saved_wird_progress', currentWirdIndex);
+            // تحديث العرض فوراً
+            render();
+        }
+
+        // دالة مساعدة لزر الواتس اب لزيادة العداد عند الضغط
+        function markWirdAsDone() {
+            // ننتظر قليلاً لضمان فتح الواتساب أولاً
+            setTimeout(() => {
+                advanceToNextWird();
+            }, 1000);
+        }
+
         function showWird() {
             if (!dataLoaded) {
                 if(document.getElementById('loadingMsg').style.display === 'none') {
@@ -415,12 +432,9 @@
             document.getElementById('controlsBox').classList.add('active');
             document.getElementById('contentArea').classList.add('active');
 
-            const startDate = new Date("2024-01-01").setHours(0,0,0,0);
-            const today = new Date().setHours(0,0,0,0);
-            const diffDays = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-            
-            currentWirdIndex = diffDays % wirdsList.length;
-            if(currentWirdIndex < 0) currentWirdIndex = 0;
+            // 🌟 قراءة التقدم المحفوظ بدلاً من التاريخ
+            const savedIndex = localStorage.getItem('saved_wird_progress');
+            currentWirdIndex = savedIndex ? parseInt(savedIndex) : 0;
 
             render();
         }
@@ -458,7 +472,6 @@
                     displayText = v.text.replace(regex, '<span class="highlight-word">$1</span>');
                 }
 
-                // فصل البسملة
                 if (v.vNum === 1 && v.sNum !== 1 && v.sNum !== 9) {
                     const keyword = "ٱلرَّحِيمِ";
                     const splitIndex = displayText.indexOf(keyword);
@@ -476,7 +489,6 @@
                         <span class="verse-info">﴿${v.sName}: ${v.vNum}﴾</span>
                        </div>`;
                 
-                // هنا التفسير مضمون 100% لأنه مدمج في الكائن
                 tH += `<p style="margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
                         <strong>${v.sName} (${v.vNum}):</strong><br>${v.tafseerText}
                        </p>`;
@@ -494,6 +506,8 @@
             const newIndex = currentWirdIndex + d;
             if (newIndex < 0 || newIndex >= wirdsList.length) return;
             currentWirdIndex = newIndex;
+            // 🌟 حفظ التقدم عند التنقل اليدوي أيضاً
+            localStorage.setItem('saved_wird_progress', currentWirdIndex);
             render(); 
         }
 
@@ -505,6 +519,8 @@
             const idx = wirdsList.findIndex(wird => wird[0].sName === n);
             if(idx !== -1) {
                 currentWirdIndex = idx;
+                // حفظ التقدم عند اختيار سورة
+                localStorage.setItem('saved_wird_progress', currentWirdIndex);
                 render();
             }
         }
@@ -535,14 +551,18 @@
             modal.classList.add('active');
         }
 
+        // 🌟 تعديل دالة فيسبوك لزيادة العداد
         function shareToFacebookSmart() {
             let text = getWirdText();
             navigator.clipboard.writeText(text).then(() => {
-                if(confirm("✅ تم نسخ الورد!\n\nبما أن فيسبوك يمنع النشر التلقائي:\n1. سيفتح فيسبوك الآن.\n2. اضغط (لصق/Paste) في المنشور.\n\nهل تريد فتح فيسبوك الآن؟")) {
+                // زيادة العداد
+                advanceToNextWird();
+                
+                if(confirm("✅ تم نسخ الورد!\n\nتم تحديث التطبيق للورد التالي (غداً).\n\nهل تريد فتح فيسبوك الآن للصق الورد؟")) {
                     window.open("https://www.facebook.com", "_blank");
                 }
             }).catch(() => {
-                alert("تعذر النسخ التلقائي، يرجى النسخ يدوياً من زر (نسخ الورد كامل)");
+                alert("تعذر النسخ التلقائي");
             });
         }
 
@@ -553,8 +573,7 @@
             let message = "📖 *ورد اليوم من تطبيق بلغوا عني ولو آية*\n\n";
             list.forEach(v => {
                 let cleanVerseText = v.text;
-                if (v.text.includes('<div')) { cleanVerseText = v.text; } 
-                
+                if (v.text.includes('<div')) { cleanVerseText = v.text.replace(/<[^>]*>/g, " "); }
                 message += `🔹 ${cleanVerseText} {${v.sName}: ${v.vNum}}\n`;
                 message += `🔸 التفسير: ${v.tafseerText}\n\n`;
             });
@@ -563,10 +582,14 @@
             return message;
         }
 
+        // 🌟 تعديل دالة النسخ لزيادة العداد
         function copyWirdText() {
             let text = getWirdText();
             navigator.clipboard.writeText(text).then(() => {
-                alert("✅ تم نسخ الورد بالكامل!");
+                // زيادة العداد
+                advanceToNextWird();
+                
+                alert("✅ تم نسخ الورد بالكامل!\n\nتم الانتقال للورد التالي.");
                 document.getElementById('shareModal').classList.remove('active');
             }).catch(() => alert("❌ تعذر النسخ"));
         }
