@@ -17,7 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Cairo:wght@700;900&display=swap" rel="stylesheet">
     
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Cairo', sans-serif; 
             background: linear-gradient(135deg, #d1fae5 0%, #fef3c7 50%, #d1fae5 100%); 
@@ -51,7 +51,7 @@
             border-radius: 15px; font-weight: 900; cursor: pointer; width: 100%; 
             font-size: clamp(20px, 5vw, 28px); margin-bottom: 15px; box-shadow: 0 6px 0 #047857;
             font-family: 'Cairo'; border: 3px solid #fbbf24;
-            transition: transform 0.1s;
+            transition: transform 0.2s;
         }
         .wird-button:active { transform: translateY(3px); box-shadow: 0 3px 0 #047857; }
 
@@ -81,7 +81,6 @@
             background: white; border-radius: 0 15px 15px 15px; 
             padding: 15px; height: 350px; overflow-y: auto; margin-bottom: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1); border: 4px solid;
-            -webkit-overflow-scrolling: touch; will-change: scroll-position;
         }
         .quran-box { border-color: #10b981; background: #fffdf4; }
         .tafseer-box { border-color: #3b82f6; }
@@ -93,25 +92,15 @@
         
         /* تنسيق البسملة */
         .basmala-header {
-            display: block !important;
-            width: 100% !important;
-            text-align: center !important;
-            margin-bottom: 30px !important;
-            padding-bottom: 20px !important;
-            border-bottom: 3px solid #e5e7eb !important;
-            color: #065f46 !important;
-            float: none !important;
-            clear: both !important;
-            line-height: 2.2 !important;
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            color: #065f46;
         }
-        .verse-body { 
-            display: block !important; 
-            width: 100% !important;
-            margin-top: 25px !important; 
-            float: none !important;
-            clear: both !important;
-            text-align: center !important;
-        }
+        .verse-body { display: block; margin-top: 15px; }
         
         .verse-info { 
             color: #065f46; font-size: clamp(16px, 4vw, 20px); font-weight: bold; 
@@ -169,7 +158,7 @@
             display: flex; align-items: center; gap: 15px; cursor: pointer;
             background: #f3f4f6; padding: 15px; margin: 10px 0;
             border-radius: 12px; text-decoration: none; color: #1f2937;
-            font-weight: 900; font-size: 18px; transition: transform 0.1s;
+            font-weight: 900; font-size: 18px; transition: transform 0.2s;
             border: none; width: 100%; justify-content: center;
         }
         .share-option:active { transform: scale(0.98); }
@@ -262,7 +251,6 @@
         let dataLoaded = false;
         let isSearchMode = false;
         let searchResults = [];
-        let dataLoadedFromCache = false;
 
         const SOURCES = [
             {
@@ -328,27 +316,17 @@
 
         async function init() {
             const loading = document.getElementById('loadingMsg');
+            // v22 لتنظيف الكاش وتطبيق البحث الجديد
             const cachedQ = localStorage.getItem('quran_full_v22');
             const cachedT = localStorage.getItem('tafseer_full_v22');
 
-            // التحميل من الكاش أولاً
             if (cachedQ && cachedT) {
                 try {
                     processData(JSON.parse(cachedQ), JSON.parse(cachedT));
-                    dataLoadedFromCache = true;
-                    
-                    // محاولة تحديث البيانات في الخلفية (أول مرة فقط بعد التثبيت)
-                    if (!localStorage.getItem('app_initialized')) {
-                        updateDataInBackground();
-                        localStorage.setItem('app_initialized', 'true');
-                    }
                     return;
-                } catch(e) { 
-                    console.warn("خطأ في قراءة الكاش");
-                }
+                } catch(e) { }
             }
 
-            // إذا لم يكن هناك كاش، نحمل من النت
             loading.style.display = 'block';
 
             try {
@@ -356,7 +334,6 @@
                 try {
                     localStorage.setItem('quran_full_v22', JSON.stringify(qJson));
                     localStorage.setItem('tafseer_full_v22', JSON.stringify(tJson));
-                    localStorage.setItem('app_initialized', 'true');
                 } catch(e) { console.warn("الذاكرة ممتلئة"); }
 
                 processData(qJson, tJson);
@@ -364,17 +341,6 @@
 
             } catch (e) {
                 loading.innerHTML = `<div style="color:red; font-size:16px;">${e.message}</div><button onclick="location.reload()" style="margin-top:15px; padding:10px;">إعادة المحاولة</button>`;
-            }
-        }
-
-        async function updateDataInBackground() {
-            try {
-                const { qJson, tJson } = await fetchWithFallback(0);
-                localStorage.setItem('quran_full_v22', JSON.stringify(qJson));
-                localStorage.setItem('tafseer_full_v22', JSON.stringify(tJson));
-                console.log("تم تحديث البيانات في الخلفية");
-            } catch(e) {
-                console.log("فشل التحديث في الخلفية - سيتم استخدام الكاش");
             }
         }
 
@@ -402,7 +368,7 @@
                         sNum: Number(sNum), 
                         sName: sura.name, 
                         vNum: Number(vNum),
-                        cleanText: normalizeText(v.text)
+                        cleanText: normalizeText(v.text) // تطبيق التنظيف المطور
                     });
                 });
             });
@@ -511,17 +477,14 @@
 
                 // فصل البسملة
                 if (v.vNum === 1 && v.sNum !== 1 && v.sNum !== 9) {
-                    const keyword = "ٱلرَّحِيمِ";
+                    const keyword = "ٱلرَّحِيمِ";
                     const splitIndex = displayText.indexOf(keyword);
                     
                     if (splitIndex !== -1) {
                         const cutPoint = splitIndex + keyword.length;
                         const basmalaPart = displayText.substring(0, cutPoint);
                         const restOfVerse = displayText.substring(cutPoint);
-                        
-                        // البسملة في div منفصل تماماً
-                        qH += `<div class="basmala-header">${basmalaPart}</div>`;
-                        displayText = restOfVerse; // الآيات فقط
+                        displayText = `<div class="basmala-header">${basmalaPart}</div><div class="verse-body">${restOfVerse}</div>`;
                     }
                 }
 
