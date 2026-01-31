@@ -3,8 +3,7 @@
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║  تطبيق: بلغوا عني ولو آية                                                ║
 ║  المطور: الأستاذ / خالد الجوهري                                          ║
-║  الإصدار: v31 (Perfect Search + No Lag + Fixed Layout)                  ║
-║  التقييم المستهدف: 10/10                                                ║
+║  الإصدار: v28 (Restored Powerful Indexing Search)                       ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 -->
 <html lang="ar" dir="rtl">
@@ -44,12 +43,8 @@
             border-radius: 10px; font-weight: 900; font-size: 16px; display: none;
         }
 
-        /* حاوية ثابتة لجميع الشاشات */
         .container { 
-            width: 94%; 
-            max-width: 600px; 
-            margin: 0 auto; 
-            padding: 10px 0; 
+            width: 95%; max-width: 600px; margin: 0 auto; padding: 10px 0;
         }
 
         .wird-button {
@@ -141,7 +136,6 @@
             font-size: 20px; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         
-        /* الفوتر: الاسم في سطر والحقوق في سطر */
         .footer { 
             background: #047857; padding: 15px; text-align: center; color: white; 
             border-radius: 15px; margin-top: 15px; font-weight: 900; 
@@ -203,7 +197,7 @@
             <select id="suraSelect" class="sura-select" onchange="jumpToSura()">
                 <option value="">📖 الفهرس (اختر السورة)</option>
             </select>
-            <!-- ⚡ استخدام oninput مع Debounce -->
+            <!-- استخدام debounce لعدم التهنيج مع البحث السريع -->
             <input type="text" id="searchInput" class="search-input" placeholder="🔍 اكتب هنا للبحث (بدون تشكيل)..." oninput="debouncedSearch()">
         </div>
 
@@ -267,7 +261,7 @@
             }
         ];
 
-        // 🚀 دالة التنظيف "القديمة والفعالة" التي استخدمناها في v22
+        // 🚀 دالة التنظيف "القوية" (تم استرجاعها)
         function normalizeText(text) {
             if (!text) return "";
             return text
@@ -304,9 +298,9 @@
             const loading = document.getElementById('loadingMsg');
             const status = document.getElementById('statusText');
             
-            // v31: تنظيف كامل للبدء من جديد
-            const CACHE_KEY_Q = 'quran_full_v31';
-            const CACHE_KEY_T = 'tafseer_full_v31';
+            // 🔥 v28: مسح كامل لإجبار تحميل البيانات المفهرسة للبحث
+            const CACHE_KEY_Q = 'quran_full_v28';
+            const CACHE_KEY_T = 'tafseer_full_v28';
 
             for(let key in localStorage) {
                 if(key.startsWith('quran_full_') && key !== CACHE_KEY_Q) localStorage.removeItem(key);
@@ -332,6 +326,7 @@
                 processData(qJson, tJson); 
                 
                 try {
+                    // حفظ البيانات كما هي لضمان البحث
                     localStorage.setItem(CACHE_KEY_Q, JSON.stringify(qJson));
                     localStorage.setItem(CACHE_KEY_T, JSON.stringify(tJson));
                 } catch(e) { console.warn("الذاكرة ممتلئة"); }
@@ -370,7 +365,7 @@
                             sNum: Number(sNum), 
                             sName: sura.name, 
                             vNum: Number(vNum),
-                            // 🔥🔥🔥 إعادة تفعيل الفهرس للبحث السريع والدقيق 🔥🔥🔥
+                            // ✅✅✅ تم استرجاع cleanText هنا وهو سر البحث السريع ✅✅✅
                             cleanText: normalizeText(v.text) 
                         });
                     });
@@ -524,7 +519,7 @@
             }
         }
 
-        // ⚡ دالة البحث المحدثة التي تستخدم الفهرس المحفوظ
+        // ⚡ دالة Debounce لمنع التهنيج
         function debouncedSearch() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(searchQuran, 300);
@@ -537,7 +532,7 @@
             if(cleanT.length > 1) { 
                 isSearchMode = true;
                 searchResults = [];
-                // 🔥 البحث الآن يعتمد على cleanText المحفوظ في الذاكرة (سريع جداً)
+                // 🔥 البحث الآن يعتمد على cleanText المحفوظ في الذاكرة (سريع جداً ودقيق)
                 for (let i = 0; i < allVerses.length; i++) {
                     if (allVerses[i].cleanText.includes(cleanT)) {
                         searchResults.push(allVerses[i]);
