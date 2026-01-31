@@ -3,7 +3,7 @@
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║  تطبيق: بلغوا عني ولو آية                                                ║
 ║  المطور: الأستاذ / خالد الجوهري                                          ║
-║  الإصدار: v30 (Performance Boost + Layout Fix + Smart Search)           ║
+║  الإصدار: v31 (Perfect Search + No Lag + Fixed Layout)                  ║
 ║  التقييم المستهدف: 10/10                                                ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 -->
@@ -44,7 +44,7 @@
             border-radius: 10px; font-weight: 900; font-size: 16px; display: none;
         }
 
-        /* تنسيق ثابت يناسب جميع الشاشات */
+        /* حاوية ثابتة لجميع الشاشات */
         .container { 
             width: 94%; 
             max-width: 600px; 
@@ -97,6 +97,7 @@
             text-align: center; color: #000; font-weight: 900;
         }
         
+        /* تنسيق البسملة */
         .basmala-header {
             display: block; width: 100%; text-align: center; margin-bottom: 20px;
             padding-bottom: 10px; border-bottom: 2px solid #e5e7eb; color: #065f46;
@@ -140,22 +141,14 @@
             font-size: 20px; font-weight: 900; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
         
-        /* 🌟 تنسيق الفوتر الجديد (سطرين منفصلين) */
+        /* الفوتر: الاسم في سطر والحقوق في سطر */
         .footer { 
             background: #047857; padding: 15px; text-align: center; color: white; 
             border-radius: 15px; margin-top: 15px; font-weight: 900; 
             border: 2px solid #fbbf24; line-height: 1.6;
         }
-        .footer-name {
-            display: block;
-            font-size: clamp(16px, 5vw, 20px);
-            margin-bottom: 5px;
-        }
-        .footer-rights {
-            display: block;
-            font-size: clamp(14px, 4vw, 16px);
-            opacity: 0.9;
-        }
+        .footer-name { display: block; font-size: clamp(16px, 5vw, 20px); margin-bottom: 5px; }
+        .footer-rights { display: block; font-size: clamp(14px, 4vw, 16px); opacity: 0.9; }
 
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -210,7 +203,7 @@
             <select id="suraSelect" class="sura-select" onchange="jumpToSura()">
                 <option value="">📖 الفهرس (اختر السورة)</option>
             </select>
-            <!-- ⚡ إضافة oninput للبحث الذكي السريع -->
+            <!-- ⚡ استخدام oninput مع Debounce -->
             <input type="text" id="searchInput" class="search-input" placeholder="🔍 اكتب هنا للبحث (بدون تشكيل)..." oninput="debouncedSearch()">
         </div>
 
@@ -235,7 +228,6 @@
 
         <div class="dedication">صدقة جارية عني وعن والديّا وزوجتي وأولادي</div>
         
-        <!-- 🌟 الفوتر المعدل -->
         <div class="footer">
             <span class="footer-name">تصميم وتنفيذ: أ / خالد الجوهري</span>
             <span class="footer-rights">جميع الحقوق محفوظة © 2025</span>
@@ -254,6 +246,7 @@
 
     <script>
         let allVerses = [];
+        let allTafseerText = []; 
         let wirdsList = [];
         let currentWirdIndex = 0;
         let dataLoaded = false;
@@ -274,6 +267,7 @@
             }
         ];
 
+        // 🚀 دالة التنظيف "القديمة والفعالة" التي استخدمناها في v22
         function normalizeText(text) {
             if (!text) return "";
             return text
@@ -310,11 +304,10 @@
             const loading = document.getElementById('loadingMsg');
             const status = document.getElementById('statusText');
             
-            // v30: تنظيف شامل للذاكرة القديمة
-            const CACHE_KEY_Q = 'quran_full_v30';
-            const CACHE_KEY_T = 'tafseer_full_v30';
+            // v31: تنظيف كامل للبدء من جديد
+            const CACHE_KEY_Q = 'quran_full_v31';
+            const CACHE_KEY_T = 'tafseer_full_v31';
 
-            // مسح الكاش القديم لتجنب التعارض
             for(let key in localStorage) {
                 if(key.startsWith('quran_full_') && key !== CACHE_KEY_Q) localStorage.removeItem(key);
                 if(key.startsWith('tafseer_full_') && key !== CACHE_KEY_T) localStorage.removeItem(key);
@@ -354,7 +347,7 @@
             
             setTimeout(() => {
                 allVerses = [];
-                let allTafseerText = [];
+                allTafseerText = [];
 
                 let qList = qData.data?.surahs || qData.data || qData;
                 let tList = tData.data?.surahs || tData.data || tData;
@@ -362,16 +355,6 @@
                 if (!Array.isArray(qList)) qList = Object.values(qList);
                 if (!Array.isArray(tList)) tList = Object.values(tList);
 
-                // تجهيز التفسير أولاً
-                tList.forEach(sura => {
-                    const ayahs = sura.ayahs || sura.verses || [];
-                    ayahs.forEach(v => {
-                        allTafseerText.push(v.text || v.content || v.tafseer);
-                    });
-                });
-
-                // معالجة القرآن
-                let globalIndex = 0;
                 qList.forEach((sura, index) => {
                     let opt = document.createElement('option');
                     opt.value = sura.name; opt.textContent = sura.name;
@@ -382,21 +365,27 @@
                     
                     ayahs.forEach((v, vIndex) => {
                         const vNum = v.numberInSurah || v.id || (vIndex + 1);
-                        
-                        // 🌟 تجهيز cleanText هنا مرة واحدة فقط لتسريع البحث
-                        const cleanT = normalizeText(v.text);
-                        
                         allVerses.push({ 
                             text: v.text, 
                             sNum: Number(sNum), 
                             sName: sura.name, 
                             vNum: Number(vNum),
-                            cleanText: cleanT, // محفوظ في الذاكرة الحية
-                            tafseerText: allTafseerText[globalIndex] || "التفسير غير متوفر"
+                            // 🔥🔥🔥 إعادة تفعيل الفهرس للبحث السريع والدقيق 🔥🔥🔥
+                            cleanText: normalizeText(v.text) 
                         });
-                        globalIndex++;
                     });
                 });
+
+                tList.forEach(sura => {
+                    const ayahs = sura.ayahs || sura.verses || [];
+                    ayahs.forEach(v => {
+                        allTafseerText.push(v.text || v.content || v.tafseer);
+                    });
+                });
+
+                for(let i=0; i<allVerses.length; i++) {
+                    allVerses[i].tafseerText = allTafseerText[i] || "التفسير غير متوفر";
+                }
 
                 buildWirds();
                 dataLoaded = true;
@@ -535,10 +524,10 @@
             }
         }
 
-        // 🌟 دالة Debounce لعلاج اللاج في البحث
+        // ⚡ دالة البحث المحدثة التي تستخدم الفهرس المحفوظ
         function debouncedSearch() {
             clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(searchQuran, 300); // ينتظر 300ms بعد التوقف عن الكتابة
+            searchTimeout = setTimeout(searchQuran, 300);
         }
 
         function searchQuran() { 
@@ -548,7 +537,7 @@
             if(cleanT.length > 1) { 
                 isSearchMode = true;
                 searchResults = [];
-                // البحث الآن سريع جداً لأنه يعتمد على cleanText الجاهز
+                // 🔥 البحث الآن يعتمد على cleanText المحفوظ في الذاكرة (سريع جداً)
                 for (let i = 0; i < allVerses.length; i++) {
                     if (allVerses[i].cleanText.includes(cleanT)) {
                         searchResults.push(allVerses[i]);
@@ -571,6 +560,11 @@
         function shareToFacebookSmart() {
             let text = getWirdText();
             navigator.clipboard.writeText(text).then(() => {
+                currentWirdIndex++;
+                if (currentWirdIndex >= wirdsList.length) currentWirdIndex = 0;
+                localStorage.setItem('saved_wird_progress', currentWirdIndex);
+                render();
+
                 if(confirm("✅ تم نسخ الورد!\n\nتم تحديث التطبيق للورد التالي.\n\nهل تريد فتح فيسبوك الآن؟")) {
                     window.open("https://www.facebook.com", "_blank");
                 }
@@ -598,6 +592,11 @@
         function copyWirdText() {
             let text = getWirdText();
             navigator.clipboard.writeText(text).then(() => {
+                currentWirdIndex++;
+                if (currentWirdIndex >= wirdsList.length) currentWirdIndex = 0;
+                localStorage.setItem('saved_wird_progress', currentWirdIndex);
+                render();
+
                 alert("✅ تم نسخ الورد بالكامل!");
                 document.getElementById('shareModal').classList.remove('active');
             }).catch(() => alert("❌ تعذر النسخ"));
