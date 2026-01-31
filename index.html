@@ -3,7 +3,7 @@
 ╔══════════════════════════════════════════════════════════════════════════╗
 ║  تطبيق: بلغوا عني ولو آية                                                ║
 ║  المطور: الأستاذ / خالد الجوهري                                          ║
-║  الإصدار: v28 (Restored Powerful Indexing Search)                       ║
+║  الإصدار: v32 (Search Logic Fixed - Safe Normalization)                 ║
 ╚══════════════════════════════════════════════════════════════════════════╝
 -->
 <html lang="ar" dir="rtl">
@@ -43,9 +43,7 @@
             border-radius: 10px; font-weight: 900; font-size: 16px; display: none;
         }
 
-        .container { 
-            width: 95%; max-width: 600px; margin: 0 auto; padding: 10px 0;
-        }
+        .container { width: 94%; max-width: 600px; margin: 0 auto; padding: 10px 0; }
 
         .wird-button {
             background: linear-gradient(135deg, #10b981, #059669);
@@ -92,7 +90,6 @@
             text-align: center; color: #000; font-weight: 900;
         }
         
-        /* تنسيق البسملة */
         .basmala-header {
             display: block; width: 100%; text-align: center; margin-bottom: 20px;
             padding-bottom: 10px; border-bottom: 2px solid #e5e7eb; color: #065f46;
@@ -197,7 +194,6 @@
             <select id="suraSelect" class="sura-select" onchange="jumpToSura()">
                 <option value="">📖 الفهرس (اختر السورة)</option>
             </select>
-            <!-- استخدام debounce لعدم التهنيج مع البحث السريع -->
             <input type="text" id="searchInput" class="search-input" placeholder="🔍 اكتب هنا للبحث (بدون تشكيل)..." oninput="debouncedSearch()">
         </div>
 
@@ -261,17 +257,24 @@
             }
         ];
 
-        // 🚀 دالة التنظيف "القوية" (تم استرجاعها)
+        // 🚀 دالة التنظيف "الآمنة" الجديدة (v32)
+        // هذه الدالة تزيل التشكيل بدقة دون حذف الحروف الأساسية
         function normalizeText(text) {
             if (!text) return "";
-            return text
-                .replace(/\u0670/g, 'ا') 
-                .replace(/([^\u0621-\u064A\u0660-\u0669\s])/g, '')
-                .replace(/(آ|إ|أ|ٱ)/g, 'ا')
-                .replace(/(ة)/g, 'ه')
-                .replace(/(ى)/g, 'ي')
-                .replace(/(ؤ|ئ)/g, 'ء')
-                .trim();
+            let t = text;
+            
+            // 1. حذف التشكيل والرموز الخاصة فقط
+            t = t.replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u06E5\u06E6]/g, '');
+            
+            // 2. توحيد الألفات
+            t = t.replace(/(آ|إ|أ|ٱ)/g, 'ا');
+            
+            // 3. توحيد الياء والتاء المربوطة
+            t = t.replace(/ة/g, 'ه');
+            t = t.replace(/(ى|ي)/g, 'ي');
+            t = t.replace(/(ؤ|ئ|ء)/g, 'ء');
+            
+            return t.trim();
         }
 
         async function fetchWithFallback(urlIndex = 0) {
@@ -298,9 +301,9 @@
             const loading = document.getElementById('loadingMsg');
             const status = document.getElementById('statusText');
             
-            // 🔥 v28: مسح كامل لإجبار تحميل البيانات المفهرسة للبحث
-            const CACHE_KEY_Q = 'quran_full_v28';
-            const CACHE_KEY_T = 'tafseer_full_v28';
+            // 🔥 v32: مسح كامل لإجبار تحميل البيانات بالمنطق الجديد
+            const CACHE_KEY_Q = 'quran_full_v32';
+            const CACHE_KEY_T = 'tafseer_full_v32';
 
             for(let key in localStorage) {
                 if(key.startsWith('quran_full_') && key !== CACHE_KEY_Q) localStorage.removeItem(key);
@@ -326,7 +329,6 @@
                 processData(qJson, tJson); 
                 
                 try {
-                    // حفظ البيانات كما هي لضمان البحث
                     localStorage.setItem(CACHE_KEY_Q, JSON.stringify(qJson));
                     localStorage.setItem(CACHE_KEY_T, JSON.stringify(tJson));
                 } catch(e) { console.warn("الذاكرة ممتلئة"); }
@@ -365,7 +367,7 @@
                             sNum: Number(sNum), 
                             sName: sura.name, 
                             vNum: Number(vNum),
-                            // ✅✅✅ تم استرجاع cleanText هنا وهو سر البحث السريع ✅✅✅
+                            // ⚠️ دالة التنظيف الجديدة تضمن بقاء الكلمات كاملة
                             cleanText: normalizeText(v.text) 
                         });
                     });
@@ -519,7 +521,7 @@
             }
         }
 
-        // ⚡ دالة Debounce لمنع التهنيج
+        // ⚡ دالة Debounce
         function debouncedSearch() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(searchQuran, 300);
@@ -532,7 +534,7 @@
             if(cleanT.length > 1) { 
                 isSearchMode = true;
                 searchResults = [];
-                // 🔥 البحث الآن يعتمد على cleanText المحفوظ في الذاكرة (سريع جداً ودقيق)
+                // 🔥 البحث باستخدام النص المنظف (Safe)
                 for (let i = 0; i < allVerses.length; i++) {
                     if (allVerses[i].cleanText.includes(cleanT)) {
                         searchResults.push(allVerses[i]);
