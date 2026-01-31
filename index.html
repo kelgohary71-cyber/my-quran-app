@@ -518,7 +518,10 @@
                         const cutPoint = splitIndex + keyword.length;
                         const basmalaPart = displayText.substring(0, cutPoint);
                         const restOfVerse = displayText.substring(cutPoint);
-                        displayText = `<div class="basmala-header">${basmalaPart}</div><div class="verse-body">${restOfVerse}</div>`;
+                        
+                        // البسملة في div منفصل تماماً
+                        qH += `<div class="basmala-header">${basmalaPart}</div>`;
+                        displayText = restOfVerse; // الآيات فقط
                     }
                 }
 
