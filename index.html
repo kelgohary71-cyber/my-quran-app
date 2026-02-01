@@ -603,5 +603,33 @@
 
         init();
     </script>
+    <script>
+  let deferredPrompt;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    // منع المتصفح من إظهار التنبيه الافتراضي الصغير
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    // إظهار زر أو رسالة مخصصة من عندك (هنا هنعمل تنبيه بسيط)
+    if (confirm("هل تريد تثبيت تطبيق 'بلغوا عني ولو آية' على جهازك لسهولة الوصول؟")) {
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+        }
+        deferredPrompt = null;
+      });
+    }
+  });
+
+  // التأكد من تسجيل الـ Service Worker (مهم جداً لظهور الـ Install)
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(err => console.log('Service Worker registration failed: ', err));
+    });
+  }
+</script>
 </body>
+
 </html>
