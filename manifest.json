@@ -1,0 +1,20 @@
+{
+  "name": "بلغوا عني ولو آية",
+  "short_name": "بلغوا عني",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ecfdf5",
+  "theme_color": "#065f46",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
